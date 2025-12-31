@@ -1,3 +1,3 @@
 # particle-life
-Yet another particle live simulation
+Yet another particle life simulation
 work in progress...
