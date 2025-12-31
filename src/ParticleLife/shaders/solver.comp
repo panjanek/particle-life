@@ -43,7 +43,7 @@ layout(std430, binding = 2) writeonly buffer OutputBuffer
 const float M_PI        = 3.14159265358979323846;
 const float CONSTANT_G  = 0.1;
 
-void torus(inout vec2 pos)
+void torus_pos(inout vec2 pos)
 {
     if (pos.x > config.width)
         pos.x -= config.width;
@@ -56,15 +56,32 @@ void torus(inout vec2 pos)
         pos.y += config.height;
 }
 
+void torus_dist(inout vec2 dist)
+{
+    if (dist.x > config.width / 2)
+        dist.x = abs(dist.x - config.width);
+
+    if (dist.y > config.height / 2)
+        dist.y = abs(dist.y - config.height);
+}
+
 
 void update_one(uint idx)
 {
     vec2 pos = inParticles[idx].position;
     vec2 vel = inParticles[idx].velocity;
 
+    for(uint otherIdx = 0; otherIdx < config.particleCount; otherIdx++)
+        if (idx != otherIdx)
+        {
+             Particle other = inParticles[otherIdx];
+             vec2 simpleDist = vec2(abs(pos.x - other.position.x), abs(pos.y - other.position.y));
+             torus_dist(simpleDist);
+        }
+
     // integrate position
     pos += vel * config.dt;
-    torus(pos);
+    torus_pos(pos);
 
     outParticles[idx].position = pos;
     outParticles[idx].velocity = vel;
