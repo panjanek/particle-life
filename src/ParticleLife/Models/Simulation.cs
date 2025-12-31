@@ -9,9 +9,14 @@ namespace ParticleLife.Models
 {
     public class Simulation
     {
+        public const int MaxSpeciesCount = 10;
+
+        public const int KeypointsCount = 6;
+
         public Simulation(int particleCount)
         {
             shaderConfig = new ShaderConfig();
+            forces = new Vector4[MaxSpeciesCount * MaxSpeciesCount * KeypointsCount];
             SetupParticles(particleCount);
             shaderConfig.particleCount = particleCount;
             
@@ -20,6 +25,8 @@ namespace ParticleLife.Models
         public ShaderConfig shaderConfig;
 
         public Particle[] particles;
+
+        public Vector4[] forces;
 
         private void SetupParticles(int count)
         {

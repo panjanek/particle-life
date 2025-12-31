@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using ParticleLife.Models;
 
 namespace ParticleLife.Gpu
@@ -13,7 +14,9 @@ namespace ParticleLife.Gpu
     {
         private int program;
 
-        private int ubo;
+        private int uboConfig;
+
+        private int uboForces;
 
         private int maxGroupsX;
 
@@ -29,31 +32,39 @@ namespace ParticleLife.Gpu
 
         public ComputeProgram()
         {
-            ubo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ubo);
+            uboConfig = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.UniformBuffer, uboConfig);
             int configSizeInBytes = Marshal.SizeOf<ShaderConfig>();
-            GL.BufferData(BufferTarget.ShaderStorageBuffer, configSizeInBytes, IntPtr.Zero, BufferUsageHint.DynamicDraw);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, ubo);
-            GL.GetInteger((OpenTK.Graphics.OpenGL.GetIndexedPName)All.MaxComputeWorkGroupCount, 0, out maxGroupsX);
+            GL.BufferData(BufferTarget.UniformBuffer, configSizeInBytes, IntPtr.Zero, BufferUsageHint.StaticDraw);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, uboConfig);
 
+            uboForces = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.UniformBuffer, uboForces);
+            int forceSizeInBytes = Marshal.SizeOf<Vector4>();
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, forceSizeInBytes * Simulation.MaxSpeciesCount * Simulation.MaxSpeciesCount * Simulation.KeypointsCount, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, uboForces);
+
+            GL.GetInteger((OpenTK.Graphics.OpenGL.GetIndexedPName)All.MaxComputeWorkGroupCount, 0, out maxGroupsX);
             shaderPointStrideSize = Marshal.SizeOf<Particle>();
             program = ShaderUtil.CompileAndLinkComputeShader("solver.comp");
         }
 
-        public void Run(ShaderConfig config)
+        public void Run(ShaderConfig config, Vector4[] forces)
         {
             PrepareBuffer(config.particleCount);
 
             //upload config
-            int configSizeInBytes = Marshal.SizeOf<ShaderConfig>();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ubo);
-            GL.BufferSubData(
-                BufferTarget.ShaderStorageBuffer,
-                IntPtr.Zero,
-                Marshal.SizeOf<ShaderConfig>(),
-                ref config
-            );
+            GL.BindBuffer(BufferTarget.UniformBuffer, uboConfig);
+            GL.BufferData(BufferTarget.UniformBuffer, Marshal.SizeOf<ShaderConfig>(), ref config, BufferUsageHint.StaticDraw);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 0, uboConfig);
 
+            //upload forces
+            int forcesSizeInBytes = Marshal.SizeOf<Vector4>() * Simulation.MaxSpeciesCount * Simulation.MaxSpeciesCount * Simulation.KeypointsCount;
+            GL.BindBuffer(BufferTarget.UniformBuffer, uboForces);
+            GL.BufferData(BufferTarget.UniformBuffer, forcesSizeInBytes, forces, BufferUsageHint.StaticDraw);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 4, uboForces);
+
+            //bind storage buffers
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, pointsBufferA);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsBufferB);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, pointsTorusBuffer);

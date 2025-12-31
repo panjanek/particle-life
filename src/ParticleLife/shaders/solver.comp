@@ -24,8 +24,7 @@ struct Particle
    int _pad;   // padding to 24 bytes
 };
 
-// input buffer - only configuration
-layout(std430, binding = 0) buffer ConfigBuffer {
+layout(std140, binding = 0) buffer ConfigBuffer {
     ShaderConfig config;
 };
 
@@ -44,9 +43,14 @@ layout(std430, binding = 3) writeonly buffer VertexBuffer
     Particle displayParticles[];
 };
 
+layout(std140, binding = 4) buffer ForceBuffer {
+    vec4 forces;
+};
 
-const float M_PI        = 3.14159265358979323846;
-const float CONSTANT_G  = 0.1;
+
+
+const uint  MAX_SPECIES_COUNT = 10;
+const uint  KEYPOINTS_COUNT   = 6;
 
 void torus_pos(inout vec2 pos)
 {
@@ -70,13 +74,13 @@ void torus_dist(inout vec2 d)
         d.y -= config.height*sign(d.y);
 }
 
-float evaluateForce(const vec2 keypoints[6], float dist)
+float evaluateForce(const vec2 keypoints[KEYPOINTS_COUNT], float dist)
 {
     // Clamp distance to valid range
     dist = clamp(dist, keypoints[0].x, keypoints[5].x);
 
     // Find the segment [i, i+1] that contains dist
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < KEYPOINTS_COUNT-1; ++i)
     {
         float x0 = keypoints[i].x;
         float x1 = keypoints[i + 1].x;

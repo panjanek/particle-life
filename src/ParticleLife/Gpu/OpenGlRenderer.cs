@@ -152,7 +152,7 @@ namespace ParticleLife.Gpu
             {
                 lock (simulation)
                 {
-                    computeProgram.Run(simulation.shaderConfig);
+                    computeProgram.Run(simulation.shaderConfig, simulation.forces);
                 }
             }
 
