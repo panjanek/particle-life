@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParticleLife.Models
 {
-    [StructLayout(LayoutKind.Explicit, Size = 28)]
+    [StructLayout(LayoutKind.Explicit, Size = 32)]
     public struct ShaderConfig
     {
         public ShaderConfig()
@@ -25,8 +25,10 @@ namespace ParticleLife.Models
 
         [FieldOffset(16)] public float clampAcc = 10000f;
 
-        [FieldOffset(20)] public float width;
+        [FieldOffset(20)] public float width = 1920;
 
-        [FieldOffset(24)] public float height;
+        [FieldOffset(24)] public float height = 1080;
+
+        [FieldOffset(28)] public float maxDist = 200;
     }
 }

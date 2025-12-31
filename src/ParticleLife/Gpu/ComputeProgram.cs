@@ -17,8 +17,6 @@ namespace ParticleLife.Gpu
 
         private int maxGroupsX;
 
-        private int dummyVao;
-
         private int pointsBuffer;
 
         private int pointsCount;
@@ -33,10 +31,6 @@ namespace ParticleLife.Gpu
             GL.BufferData(BufferTarget.ShaderStorageBuffer, configSizeInBytes, IntPtr.Zero, BufferUsageHint.DynamicDraw);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, ubo);
             GL.GetInteger((OpenTK.Graphics.OpenGL.GetIndexedPName)All.MaxComputeWorkGroupCount, 0, out maxGroupsX);
-
-            // create dummy vao
-            GL.GenVertexArrays(1, out dummyVao);
-            GL.BindVertexArray(dummyVao);
 
             shaderPointStrideSize = Marshal.SizeOf<Particle>();
             program = ShaderUtil.CompileAndLinkComputeShader("solver.comp");

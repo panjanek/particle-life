@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK.Mathematics;
 
 namespace ParticleLife.Models
 {
@@ -11,27 +12,26 @@ namespace ParticleLife.Models
         public Simulation(int particleCount)
         {
             shaderConfig = new ShaderConfig();
+            SetupParticles(particleCount);
             shaderConfig.particleCount = particleCount;
-            particles = new Particle[particleCount];
+            
         }
 
         public ShaderConfig shaderConfig;
 
         public Particle[] particles;
 
-        private void SetupParticle(Particle[] buffer, int idx)
+        private void SetupParticles(int count)
         {
-            var rnd = new Random(1);
-            uint seed = (uint)(idx << 2);
-            float r = shaderConfig.initR * (SimpleRand(seed) - 0.5f);
-            float angle = SimpleRand(seed + 1) * 2 * (float)Math.PI;
-            buffer[idx].position.X = shaderConfig.initPos.X + r * (float)Math.Sin(angle);
-            buffer[idx].position.Y = shaderConfig.initPos.Y + r * (float)Math.Cos(angle);
+            if (particles == null || particles.Length != count)
+                particles = new Particle[count];
 
-            r = shaderConfig.initVR * (SimpleRand(seed + 2) - 0.5f);
-            angle = SimpleRand(seed + 3) * 2 * (float)Math.PI;
-            buffer[idx].velocity.X = shaderConfig.initVel.X + r * (float)Math.Sin(angle);
-            buffer[idx].velocity.Y = shaderConfig.initVel.Y + r * (float)Math.Cos(angle);
+            var rnd = new Random(1);
+            for(int i=0; i< count; i++)
+            {
+                particles[i].position = new Vector2((float)(shaderConfig.width * rnd.NextDouble()), (float)(shaderConfig.height * rnd.NextDouble()));
+                particles[i].velocity = Vector2.Zero;
+            }
         }
     }
 }

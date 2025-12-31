@@ -34,6 +34,14 @@ namespace ParticleLife.Gpu
 
         private int frameCounter;
 
+        private ComputeProgram computeProgram;
+
+        private DisplayProgram displayProgram;
+
+        private float zoom = 1.0f;
+
+        private Vector2 center; 
+
         public OpenGlRenderer(Panel placeholder, Simulation simulation)
         {
             this.placeholder = placeholder;
@@ -62,6 +70,11 @@ namespace ParticleLife.Gpu
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
             GL.BlendEquation(OpenTK.Graphics.OpenGL.BlendEquationMode.FuncAdd);
             GL.Enable(EnableCap.PointSprite);
+
+            computeProgram = new ComputeProgram();
+            displayProgram = new DisplayProgram();
+
+            center = new Vector2(simulation.shaderConfig.width / 2, simulation.shaderConfig.height / 2);
         }
 
         private void GlControl_SizeChanged(object? sender, EventArgs e)
@@ -76,13 +89,25 @@ namespace ParticleLife.Gpu
             glControl.Invalidate();
         }
 
+        private Matrix4 GetProjectionMatrix()
+        {
+            // rescale by windows display scale setting to match WPF coordinates
+            var w = (float)((glControl.Width / 1) / zoom) / 2;
+            var h = (float)((glControl.Height / 1) / zoom) / 2;
+            var translate = Matrix4.CreateTranslation(-center.X, -center.Y, 0.0f);
+            var ortho = Matrix4.CreateOrthographicOffCenter(-w, w, -h, h, -1f, 1f);
+            var matrix = translate * ortho;
+            return matrix;
+        }
+
         private void GlControl_Paint(object? sender, PaintEventArgs e)
         {
+            displayProgram.Run(GetProjectionMatrix(), simulation.shaderConfig.particleCount);
             glControl.SwapBuffers();
             frameCounter++;
         }
 
-        public void Draw()
+        public void Step()
         {
             if (Application.Current.MainWindow.WindowState == System.Windows.WindowState.Minimized)
                 return;

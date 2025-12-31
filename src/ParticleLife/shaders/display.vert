@@ -3,7 +3,7 @@
 struct Particle
 {
    vec2 position;
-   vec2velocity;
+   vec2 velocity;
    int species;
    int _pad;   // padding to 24 bytes
 };

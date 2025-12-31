@@ -12,12 +12,13 @@ struct ShaderConfig {
     float clampAcc;
     float width;
     float height;
+    float maxDist;
 };
 
 struct Particle
 {
    vec2 position;
-   vec2velocity;
+   vec2 velocity;
    int species;
    int _pad;   // padding to 24 bytes
 };
@@ -40,10 +41,16 @@ const float CONSTANT_G  = 0.1;
 
 void update_one(uint idx)
 {
+    vec2 pos = points[idx].position;
+    vec2 vel = points[idx].velocity;
 
+    // integrate position
+    pos += vel * config.dt;
+
+    // write back once
+    points[idx].position = pos;
+    points[idx].velocity = vel;
 }
-
-
 
 void main()
 {
