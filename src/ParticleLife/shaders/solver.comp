@@ -13,6 +13,7 @@ struct ShaderConfig {
     float width;
     float height;
     float maxDist;
+    int speciesCount;
 };
 
 struct Particle
@@ -37,6 +38,18 @@ layout(std430, binding = 1) buffer OutputBuffer {
 const float M_PI        = 3.14159265358979323846;
 const float CONSTANT_G  = 0.1;
 
+void torus(inout vec2 pos)
+{
+    if (pos.x > config.width)
+        pos.x -= config.width;
+    else if (pos.x < 0)
+        pos.x += config.width;
+
+    if (pos.y > config.height)
+        pos.y -= config.height;
+    else if (pos.y < 0)
+        pos.y += config.height;
+}
 
 
 void update_one(uint idx)
@@ -46,6 +59,7 @@ void update_one(uint idx)
 
     // integrate position
     pos += vel * config.dt;
+    torus(pos);
 
     // write back once
     points[idx].position = pos;
@@ -58,6 +72,6 @@ void main()
 
     if (idx >=0 && idx < config.particleCount) 
     {
-            update_one(idx);
+        update_one(idx);
     }
 }

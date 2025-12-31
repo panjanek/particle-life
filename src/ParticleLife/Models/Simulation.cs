@@ -30,7 +30,8 @@ namespace ParticleLife.Models
             for(int i=0; i< count; i++)
             {
                 particles[i].position = new Vector2((float)(shaderConfig.width * rnd.NextDouble()), (float)(shaderConfig.height * rnd.NextDouble()));
-                particles[i].velocity = Vector2.Zero;
+                particles[i].velocity = new Vector2((float)(100*shaderConfig.dt * (rnd.NextDouble()-0.5)), 100*(float)(shaderConfig.dt * (rnd.NextDouble()-0.5)));
+                particles[i].species = rnd.Next(shaderConfig.speciesCount);
             }
         }
     }

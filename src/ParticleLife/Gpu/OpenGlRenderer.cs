@@ -38,7 +38,7 @@ namespace ParticleLife.Gpu
 
         private DisplayProgram displayProgram;
 
-        private float zoom = 1.0f;
+        private float zoom = 0.5f;
 
         private Vector2 center; 
 
@@ -73,6 +73,7 @@ namespace ParticleLife.Gpu
 
             computeProgram = new ComputeProgram();
             displayProgram = new DisplayProgram();
+            computeProgram.UploadData(simulation.particles);
 
             center = new Vector2(simulation.shaderConfig.width / 2, simulation.shaderConfig.height / 2);
         }
@@ -119,7 +120,7 @@ namespace ParticleLife.Gpu
             {
                 lock (simulation)
                 {
-
+                    computeProgram.Run(simulation.shaderConfig);
                 }
             }
 
