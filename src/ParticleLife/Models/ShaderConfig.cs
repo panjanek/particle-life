@@ -19,7 +19,7 @@ namespace ParticleLife.Models
 
         [FieldOffset(4)] public float dt = 0.1f;
 
-        [FieldOffset(8)] public float sigma2 = 0.1f;
+        [FieldOffset(8)] public float sigma2 = 4f;
 
         [FieldOffset(12)] public float clampVel = 10000f;
 
@@ -29,7 +29,7 @@ namespace ParticleLife.Models
 
         [FieldOffset(24)] public float height = 1080;
 
-        [FieldOffset(28)] public float maxDist = 200;
+        [FieldOffset(28)] public float maxDist = 10000;
 
         [FieldOffset(32)] public int speciesCount = 2;
     }
