@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using ParticleLife.Utils;
+using Brushes = System.Windows.Media.Brushes;
 using ComboBox = System.Windows.Controls.ComboBox;
 
 namespace ParticleLife.Gui
@@ -71,6 +74,42 @@ namespace ParticleLife.Gui
 
                 foreach (var descendant in FindVisualChildren<T>(child))
                     yield return descendant;
+            }
+        }
+
+        public static void UpdateTextBlockForSlider(FrameworkElement parent, TextBlock text, object recipe)
+        {
+            var tag = WpfUtil.GetTagAsString(text);
+            if (!string.IsNullOrWhiteSpace(tag))
+            {
+                string format = "0.000";
+                var slider = WpfUtil.FindVisualChildren<Slider>(parent).FirstOrDefault(s => WpfUtil.GetTagAsString(s) == tag);
+                if (slider != null)
+                {
+                    switch (slider.SmallChange)
+                    {
+                        case 1:
+                            format = "0";
+                            break;
+                        case 0.1:
+                            format = "0.0";
+                            break;
+                        case 0.01:
+                            format = "0.00";
+                            break;
+                        case 0.001:
+                            format = "0.000";
+                            break;
+                        case 0.0001:
+                            format = "0.0000";
+                            break;
+                    }
+                }
+
+                var value = ReflectionUtil.GetObjectValue<float>(recipe, tag);
+                text.Text = value.ToString(format, CultureInfo.InvariantCulture);
+                text.Background = Brushes.Black;
+                text.Foreground = Brushes.White;
             }
         }
     }

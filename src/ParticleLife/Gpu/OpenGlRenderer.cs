@@ -80,7 +80,7 @@ namespace ParticleLife.Gpu
             displayProgram = new DisplayProgram();
             UploadParticleData();
 
-            center = new Vector2(app.simulation.shaderConfig.width / 2, app.simulation.shaderConfig.height / 2);
+            center = new Vector2(app.simulation.config.width / 2, app.simulation.config.height / 2);
 
             var dragging = new DraggingHandler(glControl, (mousePos, isLeft) => isLeft, (prev, curr) =>
             {
@@ -124,20 +124,20 @@ namespace ParticleLife.Gpu
                 lock(app.simulation)
                 {
                     computeProgram.DownloadData(app.simulation.particles);
-                    double minDistance = app.simulation.shaderConfig.width * 10;
+                    double minDistance = app.simulation.config.width * 10;
                     int closestIdx = 0;
                     var projectionMatrix = GetProjectionMatrix();
                     var mouseWorld = GpuUtil.ScreenToWorld(new Vector2(e.X, e.Y), projectionMatrix, glControl.Width, glControl.Height);
 
-                    if (mouseWorld.X > app.simulation.shaderConfig.width)
-                        mouseWorld.X -= app.simulation.shaderConfig.width;
+                    if (mouseWorld.X > app.simulation.config.width)
+                        mouseWorld.X -= app.simulation.config.width;
                     if (mouseWorld.X < 0)
-                        mouseWorld.X += app.simulation.shaderConfig.width;
+                        mouseWorld.X += app.simulation.config.width;
 
-                    if (mouseWorld.Y > app.simulation.shaderConfig.height)
-                        mouseWorld.Y -= app.simulation.shaderConfig.height;
+                    if (mouseWorld.Y > app.simulation.config.height)
+                        mouseWorld.Y -= app.simulation.config.height;
                     if (mouseWorld.Y < 0)
-                        mouseWorld.Y += app.simulation.shaderConfig.height;
+                        mouseWorld.Y += app.simulation.config.height;
 
                     for (int idx = 0; idx< app.simulation.particles.Length; idx++)
                     {
@@ -169,8 +169,8 @@ namespace ParticleLife.Gpu
         public void StartTracking(int idx)
         {
             TrackedIdx = idx;
-            app.simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
-            computeProgram.Run(app.simulation.shaderConfig, app.simulation.forces);
+            app.simulation.config.trackedIdx = TrackedIdx ?? -1;
+            computeProgram.Run(app.simulation.config, app.simulation.forces);
         }
 
         public void StopTracking()
@@ -178,8 +178,8 @@ namespace ParticleLife.Gpu
             if (TrackedIdx != null)
             {
                 TrackedIdx = null;
-                app.simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
-                computeProgram.Run(app.simulation.shaderConfig, app.simulation.forces);
+                app.simulation.config.trackedIdx = TrackedIdx ?? -1;
+                computeProgram.Run(app.simulation.config, app.simulation.forces);
             }
         }
 
@@ -217,14 +217,14 @@ namespace ParticleLife.Gpu
                 
                 var move = delta * 0.05f;
 
-                if (Math.Abs(delta.X) > 0.75* app.simulation.shaderConfig.width)
+                if (Math.Abs(delta.X) > 0.75* app.simulation.config.width)
                 {
-                    move.X = (float)Math.Sign(delta.X) * app.simulation.shaderConfig.width;
+                    move.X = (float)Math.Sign(delta.X) * app.simulation.config.width;
                 }
 
-                if (Math.Abs(delta.Y) > 0.75 * app.simulation.shaderConfig.height)
+                if (Math.Abs(delta.Y) > 0.75 * app.simulation.config.height)
                 {
-                    move.Y = (float)Math.Sign(delta.Y) * app.simulation.shaderConfig.height;
+                    move.Y = (float)Math.Sign(delta.Y) * app.simulation.config.height;
                 }
 
                 center += move;
@@ -234,7 +234,7 @@ namespace ParticleLife.Gpu
         private void GlControl_Paint(object? sender, PaintEventArgs e)
         {
             FollowTrackedParticle();
-            displayProgram.Run(GetProjectionMatrix(), app.simulation.shaderConfig.particleCount);
+            displayProgram.Run(GetProjectionMatrix(), app.simulation.config.particleCount);
             glControl.SwapBuffers();
             frameCounter++;
         }
@@ -249,8 +249,8 @@ namespace ParticleLife.Gpu
             {
                 lock (app.simulation)
                 {
-                    app.simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
-                    computeProgram.Run(app.simulation.shaderConfig, app.simulation.forces);
+                    app.simulation.config.trackedIdx = TrackedIdx ?? -1;
+                    computeProgram.Run(app.simulation.config, app.simulation.forces);
                 }
             }
 

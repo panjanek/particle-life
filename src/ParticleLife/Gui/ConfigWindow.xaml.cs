@@ -32,6 +32,7 @@ namespace ParticleLife.Gui
             minimizeButton.Click += (s, e) => WindowState = WindowState.Minimized;
             Closing += (s, e) => { e.Cancel = true; WindowState = WindowState.Minimized; };
             ContentRendered += (s, e) => { UpdateActiveControls(); UpdatePassiveControls(); };
+            restartButton.Click += (s, e) => { app.simulation.SetupParticles(app.simulation.config.particleCount); app.renderer.UploadParticleData(); };
         }
 
         private void global_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -48,10 +49,10 @@ namespace ParticleLife.Gui
                     var sizeSplit = newSizeStr.Split('x');
                     var newWidth = int.Parse(sizeSplit[0]);
                     var newHeight = int.Parse(sizeSplit[1]);
-                    if (newParticleCount != app.simulation.shaderConfig.particleCount ||
-                        newSpeciesCount != app.simulation.shaderConfig.speciesCount ||
-                        newWidth != app.simulation.shaderConfig.width ||
-                        newHeight != app.simulation.shaderConfig.height)
+                    if (newParticleCount != app.simulation.config.particleCount ||
+                        newSpeciesCount != app.simulation.config.speciesCount ||
+                        newWidth != app.simulation.config.width ||
+                        newHeight != app.simulation.config.height)
                     {
                         app.simulation.StartSimulation(newParticleCount, newSpeciesCount, newWidth, newHeight);
                         app.renderer.UploadParticleData();
@@ -63,12 +64,33 @@ namespace ParticleLife.Gui
             }
         }
 
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (!updating)
+            {
+                var tag = WpfUtil.GetTagAsString(sender);
+                if (!string.IsNullOrWhiteSpace(tag))
+                {
+                    ReflectionUtil.SetObjectValue<float>(app.simulation, tag, (float)e.NewValue);
+                    UpdatePassiveControls();
+                }
+            }
+        }
+
+        private void infoText_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var tag = WpfUtil.GetTagAsString(sender);
+            if (!string.IsNullOrWhiteSpace(tag))
+                WpfUtil.FindVisualChildren<Slider>(this).Where(s => WpfUtil.GetTagAsString(s) == tag).FirstOrDefault()?.Focus();
+            e.Handled = true;
+        }
+
         public void UpdateActiveControls()
         {
             updating = true;
-            WpfUtil.SetComboStringSelection(fieldSize, $"{app.simulation.shaderConfig.width}x{app.simulation.shaderConfig.height}");
-            WpfUtil.SetComboStringSelection(particlesCount, app.simulation.shaderConfig.particleCount.ToString());
-            WpfUtil.SetComboStringSelection(speciesCount, app.simulation.shaderConfig.particleCount.ToString());
+            WpfUtil.SetComboStringSelection(fieldSize, $"{app.simulation.config.width}x{app.simulation.config.height}");
+            WpfUtil.SetComboStringSelection(particlesCount, app.simulation.config.particleCount.ToString());
+            WpfUtil.SetComboStringSelection(speciesCount, app.simulation.config.speciesCount.ToString());
             foreach (var slider in WpfUtil.FindVisualChildren<Slider>(this))
             {
                 var tag = WpfUtil.GetTagAsString(slider);
@@ -82,7 +104,8 @@ namespace ParticleLife.Gui
 
         public void UpdatePassiveControls()
         {
-
+            foreach (var text in WpfUtil.FindVisualChildren<TextBlock>(this))
+                    WpfUtil.UpdateTextBlockForSlider(this, text, app.simulation);
         }
     }
 }

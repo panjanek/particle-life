@@ -15,24 +15,30 @@ namespace ParticleLife.Models
 
         public const int KeypointsCount = 6;
 
+        public ShaderConfig config;
+
+        public Particle[] particles;
+
+        public Vector4[] forces;
+
         public Simulation()
         {
-            shaderConfig = new ShaderConfig();
+            config = new ShaderConfig();
             forces = new Vector4[MaxSpeciesCount * MaxSpeciesCount * KeypointsCount];
         }
 
         public void StartSimulation(int particlesCount, int speciesCount, float width, float height)
         {
-            shaderConfig.speciesCount = speciesCount;
-            shaderConfig.width = width;
-            shaderConfig.height = height;
-            shaderConfig.particleCount = particlesCount;
+            config.speciesCount = speciesCount;
+            config.width = width;
+            config.height = height;
+            config.particleCount = particlesCount;
             SetupParticles(particlesCount);
 
             var rnd = new Random(6); //4
-            for (int i = 0; i < shaderConfig.speciesCount; i++)
+            for (int i = 0; i < config.speciesCount; i++)
             {
-                for (int j = 0; j < shaderConfig.speciesCount; j++)
+                for (int j = 0; j < config.speciesCount; j++)
                 {
                     float v1 = (float)(10 * (rnd.NextDouble() - 0.5));
                     float v2 = (float)(5 * (rnd.NextDouble() - 0.5));
@@ -40,12 +46,6 @@ namespace ParticleLife.Models
                 }
             }
         }
-
-        public ShaderConfig shaderConfig;
-
-        public Particle[] particles;
-
-        public Vector4[] forces;
 
         private void SetForce(int specMe, int specOther, float val1, float val2)
         {
@@ -58,7 +58,7 @@ namespace ParticleLife.Models
             forces[offset + 5] = new Vector4(60, 0, 0, 0);
         }
 
-        private void SetupParticles(int count)
+        public void SetupParticles(int count)
         {
             if (particles == null || particles.Length != count)
                 particles = new Particle[count];
@@ -66,9 +66,9 @@ namespace ParticleLife.Models
             var rnd = new Random(1);
             for(int i=0; i< count; i++)
             {
-                particles[i].position = new Vector2((float)(shaderConfig.width * rnd.NextDouble()), (float)(shaderConfig.height * rnd.NextDouble()));
-                particles[i].velocity = new Vector2((float)(100*shaderConfig.dt * (rnd.NextDouble()-0.5)), 100*(float)(shaderConfig.dt * (rnd.NextDouble()-0.5)));
-                particles[i].species = rnd.Next(shaderConfig.speciesCount);
+                particles[i].position = new Vector2((float)(config.width * rnd.NextDouble()), (float)(config.height * rnd.NextDouble()));
+                particles[i].velocity = new Vector2((float)(100*config.dt * (rnd.NextDouble()-0.5)), 100*(float)(config.dt * (rnd.NextDouble()-0.5)));
+                particles[i].species = rnd.Next(config.speciesCount);
             }
         }
     }

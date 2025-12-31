@@ -65,8 +65,24 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-
                 </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0" Grid.Column="0" Name="restartButton">Restart</Button>
+
+                </Grid>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Number of particles" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="10,5,5,0" Foreground="White" TextWrapping="Wrap"/>
                 <ComboBox Name="particlesCount" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" SelectionChanged="global_SelectionChanged" Margin="0,5,10,0">
@@ -78,7 +94,7 @@
                     <ComboBoxItem>100000</ComboBoxItem>
                     <ComboBoxItem>1000000</ComboBoxItem>
                 </ComboBox>
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Number of particles" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="10,5,5,0" Foreground="White" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Number of species" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="10,5,5,0" Foreground="White" TextWrapping="Wrap"/>
                 <ComboBox Name="speciesCount" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" SelectionChanged="global_SelectionChanged" Margin="0,5,10,0">
                     <ComboBoxItem>1</ComboBoxItem>
                     <ComboBoxItem>2</ComboBoxItem>
@@ -101,6 +117,17 @@
                     <ComboBoxItem>3840x2160</ComboBoxItem>
                     <ComboBoxItem>7680x4320</ComboBoxItem>
                 </ComboBox>
+  
+                <!-- dt -->
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="step dt ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Integration step"/>
+                <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.001" Maximum="1" SmallChange="0.001" ValueChanged="Slider_ValueChanged" Tag="config.dt" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="4" Grid.Column="2" Tag="config.dt"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
+
+                <!-- damping -->
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="damping ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Integration step"/>
+                <Slider Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.001" Maximum="2" SmallChange="0.001" LargeChange="0.1" ValueChanged="Slider_ValueChanged" Tag="config.damping" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="5" Grid.Column="2" Tag="config.damping"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
+
             </Grid>
         </DockPanel>
     </Border>
