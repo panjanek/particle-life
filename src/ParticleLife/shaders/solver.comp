@@ -1,0 +1,56 @@
+﻿#version 430
+
+#pragma optimize(on)
+
+layout(local_size_x = {LocalSizeX}) in;
+
+struct ShaderConfig {
+    int particleCount;
+    float dt;
+    float sigma2;
+    float clampVel;
+    float clampAcc;
+    float width;
+    float height;
+};
+
+struct Particle
+{
+   vec2 position;
+   vec2velocity;
+   int species;
+   int _pad;   // padding to 24 bytes
+};
+
+// input buffer - only configuration
+layout(std430, binding = 0) buffer ConfigBuffer {
+    ShaderConfig config;
+};
+
+// buffer containing point positions
+layout(std430, binding = 1) buffer OutputBuffer {
+    Particle points[];
+};
+
+
+const float M_PI        = 3.14159265358979323846;
+const float CONSTANT_G  = 0.1;
+
+
+
+void update_one(uint idx)
+{
+
+}
+
+
+
+void main()
+{
+    uint idx = gl_GlobalInvocationID.x;
+
+    if (idx >=0 && idx < config.particleCount) 
+    {
+            update_one(idx);
+    }
+}

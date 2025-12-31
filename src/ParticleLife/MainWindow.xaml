@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ParticleLife"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="ParticleLife" Width="Auto" Height="Auto" WindowState ="Maximized" MinWidth="720" MinHeight="576">
 
+    <Grid Name="parent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Loaded="parent_Loaded">
+        <Grid Name="placeholder" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        </Grid>
     </Grid>
 </Window>
