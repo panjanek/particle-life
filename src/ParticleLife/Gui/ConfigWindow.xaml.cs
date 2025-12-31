@@ -32,7 +32,13 @@ namespace ParticleLife.Gui
             minimizeButton.Click += (s, e) => WindowState = WindowState.Minimized;
             Closing += (s, e) => { e.Cancel = true; WindowState = WindowState.Minimized; };
             ContentRendered += (s, e) => { UpdateActiveControls(); UpdatePassiveControls(); };
-            restartButton.Click += (s, e) => { app.simulation.SetupParticles(app.simulation.config.particleCount); app.renderer.UploadParticleData(); };
+            restartButton.Click += (s, e) => 
+            { 
+                app.simulation.InitializeParticles(app.simulation.config.particleCount);
+                app.simulation.seed++;
+                app.simulation.InitializeRandomForces();
+                app.renderer.UploadParticleData(); 
+            };
         }
 
         private void global_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -106,6 +112,7 @@ namespace ParticleLife.Gui
         {
             foreach (var text in WpfUtil.FindVisualChildren<TextBlock>(this))
                     WpfUtil.UpdateTextBlockForSlider(this, text, app.simulation);
+            forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
         }
     }
 }

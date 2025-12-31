@@ -13,24 +13,28 @@ layout(std430, binding = 3) buffer OutputBuffer {
 };
 
 uniform mat4 projection;
+uniform vec2 viewportSize;
 
 layout(location=0) out vec3 vColor;
+
+float zoomFromProjection()
+{
+    float sx = abs(projection[0][0]);
+    float sy = abs(projection[1][1]);
+    return max(sx, sy) * max(viewportSize.x, viewportSize.y) * 0.5;
+}
 
 void main()
 {
     uint id = gl_VertexID;
     gl_Position = projection * vec4(points[id].position, 0.0, 1.0);
-    gl_PointSize = 1.0;
+    gl_PointSize = 2.0;
 
     if (points[id].flags == 1)
-        gl_PointSize = 2.0;
+        gl_PointSize = 4.0;
 
-    // Extract zoom factor from projection
-    float zoomX = length(projection[0].xy);
-    float zoomY = length(projection[1].xy);
-    float zoom  = max(zoomX, zoomY);
-
-    gl_PointSize *= zoom*1920;
+    float zoom = zoomFromProjection();
+    gl_PointSize *= zoom;
 
     uint spec = points[id].species;
     const vec3 colors[] = vec3[](

@@ -41,10 +41,8 @@ namespace ParticleLife
             app = new AppContext();
             app.mainWindow = this;
             app.simulation = new Simulation();
-            app.simulation.StartSimulation(2500, 6, 1920, 1080);
+            app.simulation.StartSimulation(2500, 8, 1920, 1080);
             app.renderer = new OpenGlRenderer(placeholder, app);
-
-
             app.configWindow = new ConfigWindow(app);
             app.configWindow.Show();
             app.configWindow.Activate();
@@ -106,7 +104,8 @@ namespace ParticleLife
             {
                 double fps = frames / timespan.TotalSeconds;
                 Title = $"ParticleLife. " +
-                        $"fps:{fps.ToString("0.0")} ";
+                        $"fps:{fps.ToString("0.0")} "+
+                        $"seed:{app.simulation.seed.ToString()} ";
 
                 lastCheckFrameCount = app.renderer.FrameCounter;
                 lastCheckTime = now;

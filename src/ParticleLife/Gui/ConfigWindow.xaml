@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:ParticleLife.Gui"
         mc:Ignorable="d"
         Title="ConfigWindow" 
-        Height="600" 
-        Width="500"
+        Width="350"
+        Height="450"  
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterOwner"
         WindowState="Normal"
@@ -127,6 +127,10 @@
                 <TextBlock Grid.Row="5" Grid.Column="0" Text="damping ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Integration step"/>
                 <Slider Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.001" Maximum="2" SmallChange="0.001" LargeChange="0.1" ValueChanged="Slider_ValueChanged" Tag="config.damping" VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="5" Grid.Column="2" Tag="config.damping"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
+
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Forces" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Forces matrix"/>
+                <local:ForceMatrix Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Width="200" Height="200" x:Name="forceMatrix"/>
+
 
             </Grid>
         </DockPanel>
