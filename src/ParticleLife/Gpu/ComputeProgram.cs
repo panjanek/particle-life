@@ -21,6 +21,8 @@ namespace ParticleLife.Gpu
 
         private int pointsBufferB;
 
+        private int pointsTorusBuffer;
+
         private int pointsCount;
 
         private int shaderPointStrideSize;
@@ -54,6 +56,7 @@ namespace ParticleLife.Gpu
 
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, pointsBufferA);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsBufferB);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, pointsTorusBuffer);
 
             GL.UseProgram(program);
             int dispatchGroupsX = (pointsCount + ShaderUtil.LocalSizeX - 1) / ShaderUtil.LocalSizeX;
@@ -78,6 +81,8 @@ namespace ParticleLife.Gpu
         {
             if (pointsCount != size)
             {
+                pointsCount = size;
+
                 //buffer A
                 if (pointsBufferA > 0)
                 {
@@ -86,7 +91,6 @@ namespace ParticleLife.Gpu
                 }
                 GL.GenBuffers(1, out pointsBufferA);
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferA);
-                pointsCount = size;
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, pointsCount * shaderPointStrideSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
                 
                 //buffer B
@@ -97,8 +101,17 @@ namespace ParticleLife.Gpu
                 }
                 GL.GenBuffers(1, out pointsBufferB);
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferB);
-                pointsCount = size;
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, pointsCount * shaderPointStrideSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+                //torus buffer
+                if (pointsTorusBuffer > 0)
+                {
+                    GL.DeleteBuffer(pointsTorusBuffer);
+                    pointsTorusBuffer = 0;
+                }
+                GL.GenBuffers(1, out pointsTorusBuffer);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsTorusBuffer);
+                GL.BufferData(BufferTarget.ShaderStorageBuffer, 9* pointsCount * shaderPointStrideSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
             }
         }
     }

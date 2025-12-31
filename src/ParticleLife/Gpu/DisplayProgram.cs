@@ -38,7 +38,7 @@ namespace ParticleLife.Gpu
             GL.UseProgram(program);
             GL.BindVertexArray(dummyVao);
             GL.UniformMatrix4(projLocation, false, ref projectionMatrix);
-            GL.DrawArrays(PrimitiveType.Points, 0, particlesCount);
+            GL.DrawArrays(PrimitiveType.Points, 0, particlesCount * 9);
         }
     }
 }

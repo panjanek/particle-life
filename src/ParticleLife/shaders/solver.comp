@@ -39,6 +39,11 @@ layout(std430, binding = 2) writeonly buffer OutputBuffer
     Particle outParticles[];
 };
 
+layout(std430, binding = 3) writeonly buffer VertexBuffer
+{
+    Particle displayParticles[];
+};
+
 
 const float M_PI        = 3.14159265358979323846;
 const float CONSTANT_G  = 0.1;
@@ -87,6 +92,12 @@ void update_one(uint idx)
     outParticles[idx].velocity = vel;
 }
 
+void duplicate(Particle particle, uint nr, uint idx, vec2 traslation)
+{
+    displayParticles[idx + nr * config.particleCount] = particle;
+    displayParticles[idx + nr * config.particleCount].position += traslation;
+}
+
 void main()
 {
     uint idx = gl_GlobalInvocationID.x;
@@ -94,5 +105,16 @@ void main()
     if (idx >=0 && idx < config.particleCount) 
     {
         update_one(idx);
+        Particle particle = outParticles[idx];
+
+        displayParticles[idx] = particle;
+        duplicate(particle, 1, idx, vec2(config.width, 0));
+        duplicate(particle, 2, idx, vec2(-config.width, 0));
+        duplicate(particle, 3, idx, vec2(0, config.height));
+        duplicate(particle, 4, idx, vec2(0, -config.height));
+        duplicate(particle, 5, idx, vec2(-config.width, -config.height));
+        duplicate(particle, 6, idx, vec2(config.width, -config.height));
+        duplicate(particle, 7, idx, vec2(-config.width, config.height));
+        duplicate(particle, 8, idx, vec2(config.width, config.height));
     }
 }
