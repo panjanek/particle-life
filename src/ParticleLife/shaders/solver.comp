@@ -170,7 +170,7 @@ void update_one(uint idx)
     vel *= inversesqrt(max(vel2, maxVel2)) * config.clampVel;
 
     //simple drag
-    //vel *= (1.0 - config.damping * config.dt);
+    //vel *= (1.0 - 0.8 * config.dt);
 
     //quadratic drag, works with 0.03f;
     /*
@@ -181,6 +181,7 @@ void update_one(uint idx)
         vel += drag * config.dt;
     }*/
 
+    //exp drag
     float speed = length(vel);
     float drag = exp(-config.damping * speed * config.dt);
     vel *= drag;

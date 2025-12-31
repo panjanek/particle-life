@@ -20,10 +20,17 @@ void main()
 {
     uint id = gl_VertexID;
     gl_Position = projection * vec4(points[id].position, 0.0, 1.0);
-    gl_PointSize = 3.0;
+    gl_PointSize = 1.0;
 
     if (points[id].flags == 1)
-        gl_PointSize = 6.0;
+        gl_PointSize = 2.0;
+
+    // Extract zoom factor from projection
+    float zoomX = length(projection[0].xy);
+    float zoomY = length(projection[1].xy);
+    float zoom  = max(zoomX, zoomY);
+
+    gl_PointSize *= zoom*1920;
 
     uint spec = points[id].species;
     const vec3 colors[] = vec3[](

@@ -10,7 +10,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using ParticleLife.Gpu;
+using ParticleLife.Gui;
 using ParticleLife.Models;
+using AppContext = ParticleLife.Models.AppContext;
+using Application = System.Windows.Application;
 
 namespace ParticleLife
 {
@@ -19,25 +22,33 @@ namespace ParticleLife
     /// </summary>
     public partial class MainWindow : Window
     {
-        private OpenGlRenderer renderer;
-
-        private Simulation simulation;
-
         private bool uiPending;
 
         private DateTime lastCheckTime;
 
         private long lastCheckFrameCount;
 
+        private AppContext app;
+
         public MainWindow()
         {
             InitializeComponent();
-            simulation = new Simulation(10000/4);
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 
         private void parent_Loaded(object sender, RoutedEventArgs e)
         {
-            renderer = new OpenGlRenderer(placeholder, simulation);
+            app = new AppContext();
+            app.mainWindow = this;
+            app.simulation = new Simulation();
+            app.simulation.StartSimulation(2500, 6, 1920, 1080);
+            app.renderer = new OpenGlRenderer(placeholder, app);
+
+
+            app.configWindow = new ConfigWindow(app);
+            app.configWindow.Show();
+            app.configWindow.Activate();
+
             KeyDown += MainWindow_KeyDown;
             System.Timers.Timer systemTimer = new System.Timers.Timer() { Interval = 10 };
             systemTimer.Elapsed += SystemTimer_Elapsed;
@@ -51,11 +62,11 @@ namespace ParticleLife
             switch (e.Key)
             {
                 case Key.Space:
-                    renderer.Paused = !renderer.Paused;
+                    app.renderer.Paused = !app.renderer.Paused;
                     e.Handled = true;
                     break;
                 case Key.Escape:
-                    renderer.StopTracking();
+                    app.renderer.StopTracking();
                     e.Handled = true;
                     break;
             }
@@ -70,7 +81,7 @@ namespace ParticleLife
                 {
                     try
                     {
-                        renderer.Step();
+                        app.renderer.Step();
                     }
                     catch (Exception ex)
                     {
@@ -90,14 +101,14 @@ namespace ParticleLife
         {
             var now = DateTime.Now;
             var timespan = now - lastCheckTime;
-            double frames = renderer.FrameCounter - lastCheckFrameCount;
+            double frames = app.renderer.FrameCounter - lastCheckFrameCount;
             if (timespan.TotalSeconds >= 0.0001)
             {
                 double fps = frames / timespan.TotalSeconds;
                 Title = $"ParticleLife. " +
                         $"fps:{fps.ToString("0.0")} ";
 
-                lastCheckFrameCount = renderer.FrameCounter;
+                lastCheckFrameCount = app.renderer.FrameCounter;
                 lastCheckTime = now;
             }
         }

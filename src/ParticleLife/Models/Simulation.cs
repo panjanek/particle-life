@@ -15,33 +15,30 @@ namespace ParticleLife.Models
 
         public const int KeypointsCount = 6;
 
-        public Simulation(int particleCount)
+        public Simulation()
         {
             shaderConfig = new ShaderConfig();
             forces = new Vector4[MaxSpeciesCount * MaxSpeciesCount * KeypointsCount];
+        }
 
-            shaderConfig.speciesCount = 6;
-            SetForce(0, 0, 5, 0);
-            SetForce(1, 1, 5, 0);
+        public void StartSimulation(int particlesCount, int speciesCount, float width, float height)
+        {
+            shaderConfig.speciesCount = speciesCount;
+            shaderConfig.width = width;
+            shaderConfig.height = height;
+            shaderConfig.particleCount = particlesCount;
+            SetupParticles(particlesCount);
 
-            SetForce(0, 1, -5, 0);
-            SetForce(1, 0, -5, 0);
-
-            var rnd = new Random(4);
-            for(int i=0; i<shaderConfig.speciesCount; i++)
+            var rnd = new Random(6); //4
+            for (int i = 0; i < shaderConfig.speciesCount; i++)
             {
-                for(int j=0; j<shaderConfig.speciesCount; j++)
+                for (int j = 0; j < shaderConfig.speciesCount; j++)
                 {
                     float v1 = (float)(10 * (rnd.NextDouble() - 0.5));
                     float v2 = (float)(5 * (rnd.NextDouble() - 0.5));
                     SetForce(i, j, v1, v2);
                 }
             }
-
-
-            SetupParticles(particleCount);
-            shaderConfig.particleCount = particleCount;
-            
         }
 
         public ShaderConfig shaderConfig;

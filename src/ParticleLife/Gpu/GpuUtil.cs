@@ -7,7 +7,7 @@ using OpenTK.Mathematics;
 
 namespace ParticleLife.Gpu
 {
-    public static class GuiUtil
+    public static class GpuUtil
     {
         public static Vector2 ProjectToScreen(Vector2 position, Matrix4 projectionMatrix, int viewportWidth, int viewportHeight)
         {

@@ -7,9 +7,10 @@ void main()
 {
     vec2 uv = gl_PointCoord * 2.0 - 1.0; 
     float r = length(uv); 
-    if (r > 1.0)
+    if (r > 1)
         discard;
 
-    outputColor = vec4(vColor, 1.0);
-    //outputColor = vec4(1.0, 1.0, 1.0, 1.0);
+    float m = r > 0.8 ? 1 : 0.8;
+
+    outputColor = vec4(vColor*m, 1.0);
 }

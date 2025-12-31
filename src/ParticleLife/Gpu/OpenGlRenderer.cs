@@ -12,6 +12,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using ParticleLife.Models;
 using ParticleLife.Utils;
+using AppContext = ParticleLife.Models.AppContext;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 using Panel = System.Windows.Controls.Panel;
@@ -30,8 +31,6 @@ namespace ParticleLife.Gpu
 
         private Panel placeholder;
 
-        private Simulation simulation;
-
         private System.Windows.Forms.Integration.WindowsFormsHost host;
 
         private GLControl glControl;
@@ -46,10 +45,12 @@ namespace ParticleLife.Gpu
 
         private Vector2 center;
 
-        public OpenGlRenderer(Panel placeholder, Simulation simulation)
+        private AppContext app;
+
+        public OpenGlRenderer(Panel placeholder, AppContext app)
         {
             this.placeholder = placeholder;
-            this.simulation = simulation;
+            this.app = app;
             host = new System.Windows.Forms.Integration.WindowsFormsHost();
             host.Visibility = Visibility.Visible;
             host.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
@@ -77,9 +78,9 @@ namespace ParticleLife.Gpu
 
             computeProgram = new ComputeProgram();
             displayProgram = new DisplayProgram();
-            computeProgram.UploadData(simulation.particles);
+            UploadParticleData();
 
-            center = new Vector2(simulation.shaderConfig.width / 2, simulation.shaderConfig.height / 2);
+            center = new Vector2(app.simulation.shaderConfig.width / 2, app.simulation.shaderConfig.height / 2);
 
             var dragging = new DraggingHandler(glControl, (mousePos, isLeft) => isLeft, (prev, curr) =>
             {
@@ -96,9 +97,9 @@ namespace ParticleLife.Gpu
                 float zoomRatio = (float)(1.0 + ZoomingSpeed * e.Delta);
 
                 var projectionMatrix = GetProjectionMatrix();
-                var topLeft1 = GuiUtil.ScreenToWorld(new Vector2(0, 0), projectionMatrix, glControl.Width, glControl.Height);
-                var bottomRight1 = GuiUtil.ScreenToWorld(new Vector2(glControl.Width, glControl.Height), projectionMatrix, glControl.Width, glControl.Height);
-                var zoomCenter = GuiUtil.ScreenToWorld(pos, projectionMatrix, glControl.Width, glControl.Height);
+                var topLeft1 = GpuUtil.ScreenToWorld(new Vector2(0, 0), projectionMatrix, glControl.Width, glControl.Height);
+                var bottomRight1 = GpuUtil.ScreenToWorld(new Vector2(glControl.Width, glControl.Height), projectionMatrix, glControl.Width, glControl.Height);
+                var zoomCenter = GpuUtil.ScreenToWorld(pos, projectionMatrix, glControl.Width, glControl.Height);
 
                 var currentSize = bottomRight1 - topLeft1;
                 var newSize = currentSize / (float)zoomRatio;
@@ -120,27 +121,27 @@ namespace ParticleLife.Gpu
         {
             if (e.Button == MouseButtons.Right)
             {
-                lock(simulation)
+                lock(app.simulation)
                 {
-                    computeProgram.DownloadData(simulation.particles);
-                    double minDistance = simulation.shaderConfig.width * 10;
+                    computeProgram.DownloadData(app.simulation.particles);
+                    double minDistance = app.simulation.shaderConfig.width * 10;
                     int closestIdx = 0;
                     var projectionMatrix = GetProjectionMatrix();
-                    var mouseWorld = GuiUtil.ScreenToWorld(new Vector2(e.X, e.Y), projectionMatrix, glControl.Width, glControl.Height);
+                    var mouseWorld = GpuUtil.ScreenToWorld(new Vector2(e.X, e.Y), projectionMatrix, glControl.Width, glControl.Height);
 
-                    if (mouseWorld.X > simulation.shaderConfig.width)
-                        mouseWorld.X -= simulation.shaderConfig.width;
+                    if (mouseWorld.X > app.simulation.shaderConfig.width)
+                        mouseWorld.X -= app.simulation.shaderConfig.width;
                     if (mouseWorld.X < 0)
-                        mouseWorld.X += simulation.shaderConfig.width;
+                        mouseWorld.X += app.simulation.shaderConfig.width;
 
-                    if (mouseWorld.Y > simulation.shaderConfig.height)
-                        mouseWorld.Y -= simulation.shaderConfig.height;
+                    if (mouseWorld.Y > app.simulation.shaderConfig.height)
+                        mouseWorld.Y -= app.simulation.shaderConfig.height;
                     if (mouseWorld.Y < 0)
-                        mouseWorld.Y += simulation.shaderConfig.height;
+                        mouseWorld.Y += app.simulation.shaderConfig.height;
 
-                    for (int idx = 0; idx<simulation.particles.Length; idx++)
+                    for (int idx = 0; idx< app.simulation.particles.Length; idx++)
                     {
-                        var particlePosition = simulation.particles[idx].position;
+                        var particlePosition = app.simulation.particles[idx].position;
                         var distance = Math.Sqrt((particlePosition.X - mouseWorld.X) * (particlePosition.X - mouseWorld.X) + (particlePosition.Y - mouseWorld.Y) * (particlePosition.Y - mouseWorld.Y));
                         if (distance < minDistance)
                         {
@@ -160,11 +161,16 @@ namespace ParticleLife.Gpu
             }
         }
 
+        public void UploadParticleData()
+        {
+            computeProgram.UploadData(app.simulation.particles);
+        }
+
         public void StartTracking(int idx)
         {
             TrackedIdx = idx;
-            simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
-            computeProgram.Run(simulation.shaderConfig, simulation.forces);
+            app.simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
+            computeProgram.Run(app.simulation.shaderConfig, app.simulation.forces);
         }
 
         public void StopTracking()
@@ -172,8 +178,8 @@ namespace ParticleLife.Gpu
             if (TrackedIdx != null)
             {
                 TrackedIdx = null;
-                simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
-                computeProgram.Run(simulation.shaderConfig, simulation.forces);
+                app.simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
+                computeProgram.Run(app.simulation.shaderConfig, app.simulation.forces);
             }
         }
 
@@ -211,14 +217,14 @@ namespace ParticleLife.Gpu
                 
                 var move = delta * 0.05f;
 
-                if (Math.Abs(delta.X) > 0.75*simulation.shaderConfig.width)
+                if (Math.Abs(delta.X) > 0.75* app.simulation.shaderConfig.width)
                 {
-                    move.X = (float)Math.Sign(delta.X) * simulation.shaderConfig.width;
+                    move.X = (float)Math.Sign(delta.X) * app.simulation.shaderConfig.width;
                 }
 
-                if (Math.Abs(delta.Y) > 0.75 * simulation.shaderConfig.height)
+                if (Math.Abs(delta.Y) > 0.75 * app.simulation.shaderConfig.height)
                 {
-                    move.Y = (float)Math.Sign(delta.Y) * simulation.shaderConfig.height;
+                    move.Y = (float)Math.Sign(delta.Y) * app.simulation.shaderConfig.height;
                 }
 
                 center += move;
@@ -228,23 +234,23 @@ namespace ParticleLife.Gpu
         private void GlControl_Paint(object? sender, PaintEventArgs e)
         {
             FollowTrackedParticle();
-            displayProgram.Run(GetProjectionMatrix(), simulation.shaderConfig.particleCount);
+            displayProgram.Run(GetProjectionMatrix(), app.simulation.shaderConfig.particleCount);
             glControl.SwapBuffers();
             frameCounter++;
         }
 
         public void Step()
         {
-            if (Application.Current.MainWindow.WindowState == System.Windows.WindowState.Minimized)
+            if (Application.Current.MainWindow == null || Application.Current.MainWindow.WindowState == System.Windows.WindowState.Minimized)
                 return;
 
             //compute
             if (!Paused)
             {
-                lock (simulation)
+                lock (app.simulation)
                 {
-                    simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
-                    computeProgram.Run(simulation.shaderConfig, simulation.forces);
+                    app.simulation.shaderConfig.trackedIdx = TrackedIdx ?? -1;
+                    computeProgram.Run(app.simulation.shaderConfig, app.simulation.forces);
                 }
             }
 
