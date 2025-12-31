@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParticleLife.Models
 {
-    [StructLayout(LayoutKind.Explicit, Size = 40)]
+    [StructLayout(LayoutKind.Explicit, Size = 44)]
     public struct ShaderConfig
     {
         public ShaderConfig()
@@ -34,5 +34,7 @@ namespace ParticleLife.Models
         [FieldOffset(32)] public int speciesCount = 2;
 
         [FieldOffset(36)] public float damping = 1.0f;
+
+        [FieldOffset(40)] public int trackedIdx;
     }
 }

@@ -15,6 +15,7 @@ struct ShaderConfig {
     float maxDist;
     int speciesCount;
     float damping;
+    int trackedIdx;
 };
 
 struct Particle
@@ -22,7 +23,7 @@ struct Particle
    vec2 position;
    vec2 velocity;
    int species;
-   int _pad;   // padding to 24 bytes
+   int flags;
 };
 
 #define MAX_SPECIES_COUNT     10
@@ -50,6 +51,11 @@ layout(std430, binding = 3) writeonly buffer VertexBuffer
 
 layout(std430, binding = 4) readonly buffer ForceBuffer {
     vec4 forces[];
+};
+
+layout(std430, binding = 5) writeonly buffer TrackingBuffer
+{
+    Particle tracked;
 };
 
 void torus_pos(inout vec2 pos)
@@ -161,10 +167,11 @@ void update_one(uint idx)
     outParticles[idx].velocity = vel;
 }
 
-void duplicate(Particle particle, uint nr, uint idx, vec2 traslation)
+void duplicate(Particle particle, uint nr, uint idx, vec2 traslation, int flags)
 {
     displayParticles[idx + nr * config.particleCount] = particle;
     displayParticles[idx + nr * config.particleCount].position += traslation;
+    displayParticles[idx + nr * config.particleCount].flags = flags;
 }
 
 void main()
@@ -174,16 +181,23 @@ void main()
     if (idx >=0 && idx < config.particleCount) 
     {
         update_one(idx);
-        Particle particle = outParticles[idx];
 
-        displayParticles[idx] = particle;
-        duplicate(particle, 1, idx, vec2(config.width, 0));
-        duplicate(particle, 2, idx, vec2(-config.width, 0));
-        duplicate(particle, 3, idx, vec2(0, config.height));
-        duplicate(particle, 4, idx, vec2(0, -config.height));
-        duplicate(particle, 5, idx, vec2(-config.width, -config.height));
-        duplicate(particle, 6, idx, vec2(config.width, -config.height));
-        duplicate(particle, 7, idx, vec2(-config.width, config.height));
-        duplicate(particle, 8, idx, vec2(config.width, config.height));
+        Particle particle = outParticles[idx];
+        int flags = 0;
+        if (config.trackedIdx > -1 && config.trackedIdx == idx)
+        {
+            flags = 1;
+            tracked = particle;
+        }
+        
+        duplicate(particle, 0, idx, vec2(0, 0), flags);
+        duplicate(particle, 1, idx, vec2(config.width, 0), flags);
+        duplicate(particle, 2, idx, vec2(-config.width, 0), flags);
+        duplicate(particle, 3, idx, vec2(0, config.height), flags);
+        duplicate(particle, 4, idx, vec2(0, -config.height), flags);
+        duplicate(particle, 5, idx, vec2(-config.width, -config.height), flags);
+        duplicate(particle, 6, idx, vec2(config.width, -config.height), flags);
+        duplicate(particle, 7, idx, vec2(-config.width, config.height), flags);
+        duplicate(particle, 8, idx, vec2(config.width, config.height), flags);
     }
 }

@@ -5,7 +5,7 @@ struct Particle
    vec2 position;
    vec2 velocity;
    int species;
-   int _pad;   // padding to 24 bytes
+   int flags;
 };
 
 layout(std430, binding = 3) buffer OutputBuffer {
@@ -21,6 +21,9 @@ void main()
     uint id = gl_VertexID;
     gl_Position = projection * vec4(points[id].position, 0.0, 1.0);
     gl_PointSize = 3.0;
+
+    if (points[id].flags == 1)
+        gl_PointSize = 6.0;
 
     uint spec = points[id].species;
     const vec3 colors[] = vec3[](

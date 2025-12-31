@@ -48,6 +48,17 @@ namespace ParticleLife
         }
         private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            switch (e.Key)
+            {
+                case Key.Space:
+                    renderer.Paused = !renderer.Paused;
+                    e.Handled = true;
+                    break;
+                case Key.Escape:
+                    renderer.StopTracking();
+                    e.Handled = true;
+                    break;
+            }
         }
 
         private void SystemTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)

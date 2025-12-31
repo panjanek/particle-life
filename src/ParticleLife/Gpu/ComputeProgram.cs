@@ -13,13 +13,13 @@ namespace ParticleLife.Gpu
 {
     public class ComputeProgram
     {
+        private int maxGroupsX;
+
         private int program;
 
         private int uboConfig;
 
         private int forcesBuffer;
-
-        private int maxGroupsX;
 
         private int pointsBufferA;
 
@@ -27,9 +27,13 @@ namespace ParticleLife.Gpu
 
         private int pointsTorusBuffer;
 
+        private int trackingBuffer;
+
         private int pointsCount;
 
         private int shaderPointStrideSize;
+
+        private Particle trackedParticle;
 
         public ComputeProgram()
         {
@@ -43,6 +47,11 @@ namespace ParticleLife.Gpu
             GL.GenBuffers(1, out forcesBuffer);
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, forcesBuffer);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, Marshal.SizeOf<Vector4>() * Simulation.MaxSpeciesCount * Simulation.MaxSpeciesCount * Simulation.KeypointsCount, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+            //tracking buffer
+            GL.GenBuffers(1, out trackingBuffer);
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, trackingBuffer);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, Marshal.SizeOf<Particle>(), IntPtr.Zero, BufferUsageHint.DynamicDraw);
 
             GL.GetInteger((OpenTK.Graphics.OpenGL.GetIndexedPName)All.MaxComputeWorkGroupCount, 0, out maxGroupsX);
             shaderPointStrideSize = Marshal.SizeOf<Particle>();
@@ -67,6 +76,7 @@ namespace ParticleLife.Gpu
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsBufferB);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 3, pointsTorusBuffer);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 4, forcesBuffer);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 5, trackingBuffer);
 
             GL.UseProgram(program);
             int dispatchGroupsX = (pointsCount + ShaderUtil.LocalSizeX - 1) / ShaderUtil.LocalSizeX;
@@ -85,6 +95,35 @@ namespace ParticleLife.Gpu
             GL.BufferSubData(BufferTarget.ShaderStorageBuffer, 0, particles.Length * shaderPointStrideSize, particles);
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferB);
             GL.BufferSubData(BufferTarget.ShaderStorageBuffer, 0, particles.Length * shaderPointStrideSize, particles);
+        }
+
+        public void DownloadData(Particle[] particles)
+        {
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferA);
+
+            GL.GetBufferSubData(
+                BufferTarget.ShaderStorageBuffer,
+                IntPtr.Zero,
+                particles.Length * Marshal.SizeOf<Particle>(),
+                particles
+            );
+
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, 0);
+        }
+
+        public Particle GetTrackedParticle()
+        {
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, trackingBuffer);
+
+            GL.GetBufferSubData(
+                BufferTarget.ShaderStorageBuffer,
+                IntPtr.Zero,
+                Marshal.SizeOf<Particle>(),
+                ref trackedParticle
+            );
+
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, 0);
+            return trackedParticle;
         }
 
         private void PrepareBuffer(int size)

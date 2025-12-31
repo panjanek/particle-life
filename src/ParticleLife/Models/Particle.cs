@@ -14,6 +14,6 @@ namespace ParticleLife.Models
         public Vector2 position;   // 8 bytes
         public Vector2 velocity;   // 8 bytes
         public int species;        // 4 bytes
-        private int _pad;          // 4 bytes padding
+        private int flags;         
     }
 }
