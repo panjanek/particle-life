@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using ParticleLife.Models;
+using ParticleLife.Utils;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 using Panel = System.Windows.Controls.Panel;
@@ -76,6 +77,37 @@ namespace ParticleLife.Gpu
             computeProgram.UploadData(simulation.particles);
 
             center = new Vector2(simulation.shaderConfig.width / 2, simulation.shaderConfig.height / 2);
+
+            var dragging = new DraggingHandler(glControl, (mousePos, isLeft) => true, (prev, curr) =>
+            {
+                var delta = (curr - prev) / zoom;
+                delta.Y = -delta.Y;
+                center -= delta;
+
+            }, () => { });
+
+            glControl.MouseWheel += (s, e) =>
+            {
+                var pos = new Vector2(e.X, e.Y);
+                float zoomRatio = (float)(1.0 + ZoomingSpeed * e.Delta);
+
+                var projectionMatrix = GetProjectionMatrix();
+                var topLeft1 = GuiUtil.ScreenToWorld(new Vector2(0, 0), projectionMatrix, glControl.Width, glControl.Height);
+                var bottomRight1 = GuiUtil.ScreenToWorld(new Vector2(glControl.Width, glControl.Height), projectionMatrix, glControl.Width, glControl.Height);
+                var zoomCenter = GuiUtil.ScreenToWorld(pos, projectionMatrix, glControl.Width, glControl.Height);
+
+                var currentSize = bottomRight1 - topLeft1;
+                var newSize = currentSize / (float)zoomRatio;
+
+                var c = zoomCenter - topLeft1;
+                var b = c / (float)zoomRatio;
+
+                var topLeft2 = zoomCenter - b;
+                var bottomRight2 = topLeft2 + newSize;
+
+                center = (bottomRight2 + topLeft2) / 2;
+                zoom = zoom * zoomRatio;
+            };
         }
 
         private void GlControl_SizeChanged(object? sender, EventArgs e)
