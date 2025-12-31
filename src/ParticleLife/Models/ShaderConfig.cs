@@ -21,19 +21,19 @@ namespace ParticleLife.Models
 
         [FieldOffset(8)] public float sigma2 = 4f;
 
-        [FieldOffset(12)] public float clampVel = 10000f;
+        [FieldOffset(12)] public float clampVel = 1000f;
 
-        [FieldOffset(16)] public float clampAcc = 10000f;
+        [FieldOffset(16)] public float clampAcc = 1000;
 
-        [FieldOffset(20)] public float width = 1920*2;
+        [FieldOffset(20)] public float width = 1920;
 
-        [FieldOffset(24)] public float height = 1080*2;
+        [FieldOffset(24)] public float height = 1080;
 
         [FieldOffset(28)] public float maxDist = 200;
 
         [FieldOffset(32)] public int speciesCount = 2;
 
-        [FieldOffset(36)] public float damping = 1.0f;
+        [FieldOffset(36)] public float damping = 0.1f;
 
         [FieldOffset(40)] public int trackedIdx;
     }

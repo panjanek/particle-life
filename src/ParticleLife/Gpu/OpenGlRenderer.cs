@@ -125,11 +125,23 @@ namespace ParticleLife.Gpu
                     computeProgram.DownloadData(simulation.particles);
                     double minDistance = simulation.shaderConfig.width * 10;
                     int closestIdx = 0;
-                    for(int idx = 0; idx<simulation.particles.Length; idx++)
+                    var projectionMatrix = GetProjectionMatrix();
+                    var mouseWorld = GuiUtil.ScreenToWorld(new Vector2(e.X, e.Y), projectionMatrix, glControl.Width, glControl.Height);
+
+                    if (mouseWorld.X > simulation.shaderConfig.width)
+                        mouseWorld.X -= simulation.shaderConfig.width;
+                    if (mouseWorld.X < 0)
+                        mouseWorld.X += simulation.shaderConfig.width;
+
+                    if (mouseWorld.Y > simulation.shaderConfig.height)
+                        mouseWorld.Y -= simulation.shaderConfig.height;
+                    if (mouseWorld.Y < 0)
+                        mouseWorld.Y += simulation.shaderConfig.height;
+
+                    for (int idx = 0; idx<simulation.particles.Length; idx++)
                     {
-                        var projectionMatrix = GetProjectionMatrix();
-                        var particleScreenPosition = GuiUtil.ProjectToScreen(simulation.particles[idx].position, projectionMatrix, glControl.Width, glControl.Height);
-                        var distance = Math.Sqrt((particleScreenPosition.X - e.X) * (particleScreenPosition.X - e.X) + (particleScreenPosition.Y - e.Y) * (particleScreenPosition.Y - e.Y));
+                        var particlePosition = simulation.particles[idx].position;
+                        var distance = Math.Sqrt((particlePosition.X - mouseWorld.X) * (particlePosition.X - mouseWorld.X) + (particlePosition.Y - mouseWorld.Y) * (particlePosition.Y - mouseWorld.Y));
                         if (distance < minDistance)
                         {
                             minDistance = distance;
@@ -197,7 +209,7 @@ namespace ParticleLife.Gpu
                 var trackedScreenPosition = tracked.position;
                 var delta = trackedScreenPosition - center;
                 
-                var move = delta * 0.1f;
+                var move = delta * 0.05f;
 
                 if (Math.Abs(delta.X) > 0.75*simulation.shaderConfig.width)
                 {

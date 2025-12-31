@@ -154,15 +154,41 @@ void update_one(uint idx)
 
                  acc += f*d/r;
              }
-
         }
 
+    //clamp acceleration
+    float acc2 = dot(acc, acc);
+    float maxAcc2 = config.clampAcc * config.clampAcc;
+    acc *= inversesqrt(max(acc2, maxAcc2)) * config.clampAcc;
 
+    //integrate velocity
     vel += acc * config.dt;
-    vel *= (1.0 - config.damping * config.dt);
-    pos += vel * config.dt;
-    torus_pos(pos);
+    
+    //clamp velocity
+    float vel2 = dot(vel, vel);
+    float maxVel2 = config.clampVel * config.clampVel;
+    vel *= inversesqrt(max(vel2, maxVel2)) * config.clampVel;
 
+    //simple drag
+    //vel *= (1.0 - config.damping * config.dt);
+
+    //quadratic drag, works with 0.03f;
+    /*
+    float speed = length(vel);
+    if (speed > 0.0)
+    {
+        vec2 drag = -config.damping * speed * vel;
+        vel += drag * config.dt;
+    }*/
+
+    float speed = length(vel);
+    float drag = exp(-config.damping * speed * config.dt);
+    vel *= drag;
+
+    //integrate position
+    pos += vel * config.dt;
+
+    torus_pos(pos);
     outParticles[idx].position = pos;
     outParticles[idx].velocity = vel;
 }

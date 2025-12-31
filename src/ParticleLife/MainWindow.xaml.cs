@@ -32,7 +32,7 @@ namespace ParticleLife
         public MainWindow()
         {
             InitializeComponent();
-            simulation = new Simulation(10000);
+            simulation = new Simulation(10000/4);
         }
 
         private void parent_Loaded(object sender, RoutedEventArgs e)
