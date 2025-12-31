@@ -17,7 +17,9 @@ namespace ParticleLife.Gpu
 
         private int maxGroupsX;
 
-        private int pointsBuffer;
+        private int pointsBufferA;
+
+        private int pointsBufferB;
 
         private int pointsCount;
 
@@ -50,18 +52,25 @@ namespace ParticleLife.Gpu
                 ref config
             );
 
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, pointsBufferA);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, pointsBufferB);
+
             GL.UseProgram(program);
             int dispatchGroupsX = (pointsCount + ShaderUtil.LocalSizeX - 1) / ShaderUtil.LocalSizeX;
             if (dispatchGroupsX > maxGroupsX)
                 dispatchGroupsX = maxGroupsX;
             GL.DispatchCompute(dispatchGroupsX, 1, 1);
             GL.MemoryBarrier(MemoryBarrierFlags.ShaderStorageBarrierBit | MemoryBarrierFlags.ShaderImageAccessBarrierBit);
+
+            (pointsBufferA, pointsBufferB) = (pointsBufferB, pointsBufferA);
         }
 
         public void UploadData(Particle[] particles)
         {
             PrepareBuffer(particles.Length);
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBuffer);
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferA);
+            GL.BufferSubData(BufferTarget.ShaderStorageBuffer, 0, particles.Length * shaderPointStrideSize, particles);
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferB);
             GL.BufferSubData(BufferTarget.ShaderStorageBuffer, 0, particles.Length * shaderPointStrideSize, particles);
         }
 
@@ -69,17 +78,27 @@ namespace ParticleLife.Gpu
         {
             if (pointsCount != size)
             {
-                if (pointsBuffer > 0)
+                //buffer A
+                if (pointsBufferA > 0)
                 {
-                    GL.DeleteBuffer(pointsBuffer);
-                    pointsBuffer = 0;
+                    GL.DeleteBuffer(pointsBufferA);
+                    pointsBufferA = 0;
                 }
-                GL.GenBuffers(1, out pointsBuffer);
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBuffer);
+                GL.GenBuffers(1, out pointsBufferA);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferA);
                 pointsCount = size;
-                
                 GL.BufferData(BufferTarget.ShaderStorageBuffer, pointsCount * shaderPointStrideSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
-                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, pointsBuffer);
+                
+                //buffer B
+                if (pointsBufferB > 0)
+                {
+                    GL.DeleteBuffer(pointsBufferB);
+                    pointsBufferB = 0;
+                }
+                GL.GenBuffers(1, out pointsBufferB);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, pointsBufferB);
+                pointsCount = size;
+                GL.BufferData(BufferTarget.ShaderStorageBuffer, pointsCount * shaderPointStrideSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
             }
         }
     }

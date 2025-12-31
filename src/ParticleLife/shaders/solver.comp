@@ -29,9 +29,14 @@ layout(std430, binding = 0) buffer ConfigBuffer {
     ShaderConfig config;
 };
 
-// buffer containing point positions
-layout(std430, binding = 1) buffer OutputBuffer {
-    Particle points[];
+layout(std430, binding = 1) readonly buffer InputBuffer
+{
+    Particle inParticles[];
+};
+
+layout(std430, binding = 2) writeonly buffer OutputBuffer
+{
+    Particle outParticles[];
 };
 
 
@@ -54,16 +59,15 @@ void torus(inout vec2 pos)
 
 void update_one(uint idx)
 {
-    vec2 pos = points[idx].position;
-    vec2 vel = points[idx].velocity;
+    vec2 pos = inParticles[idx].position;
+    vec2 vel = inParticles[idx].velocity;
 
     // integrate position
     pos += vel * config.dt;
     torus(pos);
 
-    // write back once
-    points[idx].position = pos;
-    points[idx].velocity = vel;
+    outParticles[idx].position = pos;
+    outParticles[idx].velocity = vel;
 }
 
 void main()
