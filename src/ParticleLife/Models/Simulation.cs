@@ -69,10 +69,10 @@ namespace ParticleLife.Models
                 {
                     for (int j = 0; j < speciesCount; j++)
                     {
-                        float v1 = (float)(10 * (rnd.NextDouble() - 0.5));
-                        float v2 = (float)(5 * (rnd.NextDouble() - 0.5));
-                        SetForce(i, j, v1, v2);
-                        SetForce(j, i, v1, v2);
+                        float v1 = (float)(1.5 * config.maxForce * (rnd.NextDouble() - 0.5));
+                        float v2 = (float)(1 * config.maxForce * (rnd.NextDouble() - 0.5));
+                        SetForce(i, j, -config.maxForce*0.5f, v1, v2);
+                        SetForce(j, i, -config.maxForce * 0.5f, v1, v2);
                     }
                 }
             }
@@ -85,15 +85,16 @@ namespace ParticleLife.Models
 
         }
 
-        private void SetForce(int specMe, int specOther, float val1, float val2)
+        private void SetForce(int specMe, int specOther, float val0, float val1, float val2)
         {
             int offset = GetForceOffset(specMe, specOther);
-            forces[offset + 0] = new Vector4(0, -5, 0, 0);
-            forces[offset + 1] = new Vector4(10, 0, 0, 0);
-            forces[offset + 2] = new Vector4(20, val1, 0, 0);
-            forces[offset + 3] = new Vector4(40, 0, 0, 0);
-            forces[offset + 4] = new Vector4(50, val2, 0, 0);
-            forces[offset + 5] = new Vector4(60, 0, 0, 0);
+            var d = config.maxDist / 6;
+            forces[offset + 0] = new Vector4(0, val0, 0, 0);
+            forces[offset + 1] = new Vector4(d, 0, 0, 0);
+            forces[offset + 2] = new Vector4(2*d, val1, 0, 0);
+            forces[offset + 3] = new Vector4(3*d, 0, 0, 0);
+            forces[offset + 4] = new Vector4(4*d, val2, 0, 0);
+            forces[offset + 5] = new Vector4(5*d, 0, 0, 0);
         }
 
         public void InitializeRandomForces()
@@ -103,9 +104,9 @@ namespace ParticleLife.Models
             {
                 for (int j = 0; j < config.speciesCount; j++)
                 {
-                    float v1 = (float)(10 * (rnd.NextDouble() - 0.5));
-                    float v2 = (float)(5 * (rnd.NextDouble() - 0.5));
-                    SetForce(i, j, v1, v2);
+                    float v1 = (float)(1.7*config.maxForce * (rnd.NextDouble() - 0.5));
+                    float v2 = (float)(1*config.maxForce * (rnd.NextDouble() - 0.5));
+                    SetForce(i, j, -config.maxForce * 0.5f, v1, v2);
                 }
             }
         }

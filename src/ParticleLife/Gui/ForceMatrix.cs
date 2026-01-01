@@ -18,6 +18,8 @@ namespace ParticleLife.Gui
     {
         private Rectangle[,] rectangles;
 
+        private Brush[] DotColors = [Brushes.Yellow, Brushes.Magenta, Brushes.Cyan, Brushes.Red, Brushes.Green, Brushes.Blue, Brushes.White, Brushes.Gray];
+
         public int SelectedX { get; set; }
 
         public int SelectedY { get; set; }
@@ -41,6 +43,14 @@ namespace ParticleLife.Gui
             var rectSize = Width / Simulation.MaxSpeciesCount;
             for (int x = 0; x < Simulation.MaxSpeciesCount; x++)
             {
+                var dot = new System.Windows.Shapes.Ellipse() { Fill = DotColors[x%DotColors.Length], Width = rectSize * 0.75, Height = rectSize * 0.75, Stroke = Brushes.Blue, StrokeThickness = 1 };
+                dot.SetValue(Canvas.LeftProperty, -rectSize);
+                dot.SetValue(Canvas.TopProperty, x * rectSize);
+                Children.Add(dot);
+                dot = new System.Windows.Shapes.Ellipse() { Fill = DotColors[x % DotColors.Length], Width = rectSize * 0.75, Height = rectSize * 0.75, Stroke = Brushes.Blue, StrokeThickness = 1 };
+                dot.SetValue(Canvas.LeftProperty, rectSize*x);
+                dot.SetValue(Canvas.TopProperty, - rectSize);
+                Children.Add(dot);
                 for (int y = 0; y < Simulation.MaxSpeciesCount; y++)
                 {
                     var rect = new Rectangle();
