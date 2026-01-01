@@ -15,7 +15,7 @@ namespace ParticleLife.Models
 
         }
 
-        [FieldOffset(0)] public int particleCount;
+        [FieldOffset(0)] public int particleCount = 0;
 
         [FieldOffset(4)] public float dt = 0.1f;
 
@@ -31,7 +31,7 @@ namespace ParticleLife.Models
 
         [FieldOffset(28)] public float maxDist = 100;
 
-        [FieldOffset(32)] public int speciesCount = 2;
+        [FieldOffset(32)] public int speciesCount = 0;
 
         [FieldOffset(36)] public float damping = 0.1f;
 

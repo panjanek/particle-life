@@ -219,7 +219,7 @@ namespace ParticleLife.Gpu
                 var trackedScreenPosition = tracked.position;
                 var delta = trackedScreenPosition - center;
                 
-                var move = delta * 0.05f;
+                var move = delta * app.simulation.cameraFollowSpeed;
 
                 if (Math.Abs(delta.X) > 0.75* app.simulation.config.width)
                 {
@@ -240,7 +240,7 @@ namespace ParticleLife.Gpu
             lock (app.simulation)
             {
                 FollowTrackedParticle();
-                displayProgram.Run(GetProjectionMatrix(), app.simulation.config.particleCount, new Vector2(glControl.Width, glControl.Height));
+                displayProgram.Run(GetProjectionMatrix(), app.simulation.config.particleCount, new Vector2(glControl.Width, glControl.Height), app.simulation.particleSize);
                 glControl.SwapBuffers();
                 frameCounter++;
             }

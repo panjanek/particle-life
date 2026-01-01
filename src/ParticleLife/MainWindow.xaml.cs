@@ -55,7 +55,7 @@ namespace ParticleLife
             infoTimer.Tick += InfoTimer_Tick;
             infoTimer.Start();
         }
-        private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        public void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             switch (e.Key)
             {

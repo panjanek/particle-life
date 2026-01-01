@@ -78,6 +78,12 @@ namespace ParticleLife.Gui
                     UpdateActiveControls();
                     UpdatePassiveControls();
                     PopupMessage.Show(app.mainWindow, $"Config loaded from {dialog.FileName}");
+                    if (app.renderer.Paused)
+                    {
+                        app.renderer.Paused = false;
+                        app.renderer.Step();
+                        app.renderer.Paused = true;
+                    }
                 }
             };
 
@@ -88,6 +94,38 @@ namespace ParticleLife.Gui
                     app.simulation.forces[offset + i] = forceGraph.Forces[i];
                 forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
             };
+
+            invertButton.Click += (s, e) => Invert(Simulation.GetForceOffset(forceMatrix.SelectedX, forceMatrix.SelectedY));
+            symetricButton.Click += (s, e) => CopyTo(Simulation.GetForceOffset(forceMatrix.SelectedX, forceMatrix.SelectedY), Simulation.GetForceOffset(forceMatrix.SelectedY, forceMatrix.SelectedX));
+            asymetricButton.Click += (s, e) => 
+            {
+                if (forceMatrix.SelectedX != forceMatrix.SelectedY)
+                {
+                    CopyTo(Simulation.GetForceOffset(forceMatrix.SelectedX, forceMatrix.SelectedY), Simulation.GetForceOffset(forceMatrix.SelectedY, forceMatrix.SelectedX));
+                    Invert(Simulation.GetForceOffset(forceMatrix.SelectedY, forceMatrix.SelectedX));
+                }
+            };
+
+            KeyDown += (s, e) => app.mainWindow.MainWindow_KeyDown(s, e);
+        }
+
+        private void Invert(int offset)
+        {
+            for (int i = 1; i < Simulation.KeypointsCount; i++)
+                app.simulation.forces[offset + i].Y *= -1;
+            UpdateActiveControls();
+            UpdatePassiveControls();
+        }
+
+        private void CopyTo(int fromOffset, int toOffset)
+        {
+            if (fromOffset != toOffset)
+            {
+                for (int i = 0; i < Simulation.KeypointsCount; i++)
+                    app.simulation.forces[toOffset+i] = app.simulation.forces[fromOffset+i];
+                UpdateActiveControls();
+                UpdatePassiveControls();
+            }
         }
 
         private void Record_Click(object sender, RoutedEventArgs e)
@@ -148,6 +186,12 @@ namespace ParticleLife.Gui
                         ResetMatrix();
                         UpdateActiveControls();
                         UpdatePassiveControls();
+                        if (app.renderer.Paused)
+                        {
+                            app.renderer.Paused = false;
+                            app.renderer.Step();
+                            app.renderer.Paused = true;
+                        }
                     }
                 }
 
