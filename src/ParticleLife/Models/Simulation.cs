@@ -65,13 +65,14 @@ namespace ParticleLife.Models
             var rnd = new Random(seed);
             if (speciesCount > previousSpeciesCount)
             {
-                for(int i= previousSpeciesCount; i< speciesCount; i++)
+                for(int i = previousSpeciesCount; i< speciesCount; i++)
                 {
-                    for (int j = previousSpeciesCount; j < speciesCount; j++)
+                    for (int j = 0; j < speciesCount; j++)
                     {
                         float v1 = (float)(10 * (rnd.NextDouble() - 0.5));
                         float v2 = (float)(5 * (rnd.NextDouble() - 0.5));
                         SetForce(i, j, v1, v2);
+                        SetForce(j, i, v1, v2);
                     }
                 }
             }

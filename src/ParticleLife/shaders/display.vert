@@ -4,7 +4,7 @@ struct Particle
 {
    vec2 position;
    vec2 velocity;
-   int species;
+   uint species;
    int flags;
 };
 
