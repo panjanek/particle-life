@@ -17,6 +17,7 @@ struct ShaderConfig {
     float damping;
     int trackedIdx;
     float maxForce;
+    float amp;
 };
 
 struct Particle
@@ -147,32 +148,37 @@ void update_one(uint idx)
              if (abs(d.x) <= config.maxDist && abs(d.y) <= config.maxDist)
              {
 
-                 float r2 = dot(d, d);
+                 float r2 = dot(d, d) + config.sigma2;
                  float r = sqrt(r2);
 
                  uint forceOffset = (spec * MAX_SPECIES_COUNT + other.species) * KEYPOINTS_COUNT;
                  float f = evaluateForce2(forceOffset, r);
 
-                 acc += f*d/r;
+                 acc += config.amp * f * d / r;
              }
         }
 
     //clamp acceleration
-    float acc2 = dot(acc, acc);
-    float maxAcc2 = config.clampAcc * config.clampAcc;
-    acc *= inversesqrt(max(acc2, maxAcc2)) * config.clampAcc;
+    if (config.clampAcc > 0.0)
+    {
+        float acc2 = dot(acc, acc);
+        float maxAcc2 = config.clampAcc * config.clampAcc;
+        acc *= inversesqrt(max(acc2, maxAcc2)) * config.clampAcc;
+    }
 
     //integrate velocity
     vel += acc * config.dt;
     
     //clamp velocity
-    float vel2 = dot(vel, vel);
-    float maxVel2 = config.clampVel * config.clampVel;
-    vel *= inversesqrt(max(vel2, maxVel2)) * config.clampVel;
+    if (config.clampVel > 0)
+    {
+        float vel2 = dot(vel, vel);
+        float maxVel2 = config.clampVel * config.clampVel;
+        vel *= inversesqrt(max(vel2, maxVel2)) * config.clampVel;
+    }
 
     //simple drag
     //vel *= (1.0 - 0.8 * config.dt);
-
     //quadratic drag, works with 0.03f;
     /*
     float speed = length(vel);

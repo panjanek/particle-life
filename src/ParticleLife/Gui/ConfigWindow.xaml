@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="ConfigWindow" 
         Width="350"
-        Height="600"  
+        Height="700"  
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterOwner"
         WindowState="Normal"
@@ -68,6 +68,9 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/> <!-- 9 -->
+
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
@@ -84,7 +87,37 @@
                     </Grid.RowDefinitions>
 
                     <Button Grid.Row="0" Grid.Column="0" Name="restartButton">Restart</Button>
+                    <Button Grid.Row="0" Grid.Column="1" Name="randomButton">Random</Button>
+                    <Button Grid.Row="0" Grid.Column="2" Name="saveButton">Save</Button>
+                    <Button Grid.Row="0" Grid.Column="3" Name="loadButton">Load</Button>
+                    <ToggleButton Name="recordButton" Grid.Row="0" Grid.Column="4" ToolTip="Record frames as PNG files to given folder" Click="Record_Click">
+                        <ToggleButton.Style>
+                            <Style TargetType="ToggleButton">
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <!-- Default: red circle -->
+                                        <Ellipse Width="12"
+                             Height="12"
+                             Fill="Red"/>
+                                    </Setter.Value>
+                                </Setter>
 
+                                <Style.Triggers>
+                                    <!-- When recording -->
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter Property="Content">
+                                            <Setter.Value>
+                                                <!-- Stop: black square -->
+                                                <Rectangle Width="12"
+                                       Height="12"
+                                       Fill="Black"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ToggleButton.Style>
+                    </ToggleButton>
                 </Grid>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Number of particles" Grid.ColumnSpan="1" VerticalAlignment="Center" Margin="10,5,5,0" Foreground="White" TextWrapping="Wrap"/>
@@ -123,17 +156,34 @@
   
                 <!-- dt -->
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="step dt ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Integration step"/>
-                <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.001" Maximum="1" SmallChange="0.001" ValueChanged="Slider_ValueChanged" Tag="config.dt" VerticalAlignment="Center"/>
+                <Slider Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.001" Maximum="1" SmallChange="0.001" LargeChange="0.1" ValueChanged="Slider_ValueChanged" Tag="config.dt" VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="4" Grid.Column="2" Tag="config.dt"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
 
                 <!-- damping -->
                 <TextBlock Grid.Row="5" Grid.Column="0" Text="damping ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Integration step"/>
-                <Slider Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.001" Maximum="2" SmallChange="0.001" LargeChange="0.1" ValueChanged="Slider_ValueChanged" Tag="config.damping" VerticalAlignment="Center"/>
+                <Slider Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.001" Maximum="2" SmallChange="0.01" LargeChange="0.1" ValueChanged="Slider_ValueChanged" Tag="config.damping" VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="5" Grid.Column="2" Tag="config.damping"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
 
-                <TextBlock Grid.Row="6" Grid.Column="0" Grid.RowSpan="2" Text="Forces" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Forces matrix"/>
-                <local:ForceMatrix Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Width="200" Height="200" x:Name="forceMatrix"/>
-                <local:ForceGraph Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" Width="200" Height="150" x:Name="forceGraph" Margin="0,10,0,0"/>
+                <!-- amp -->
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="Force amplification ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Global force amplification"/>
+                <Slider Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="1" Minimum="0.1" Maximum="10" SmallChange="0.01" LargeChange="0.1" ValueChanged="Slider_ValueChanged" Tag="config.amp" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="6" Grid.Column="2" Tag="config.amp"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
+
+                <!-- maxDist -->
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="Max force distance ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Maximum dostance between particles for computing forces. Beyond tht the interaction is ignored"/>
+                <Slider Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" Minimum="1" Maximum="1000" SmallChange="1" LargeChange="10" ValueChanged="Slider_ValueChanged" Tag="config.maxDist" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="7" Grid.Column="2" Tag="config.maxDist"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
+
+                <!-- maxForce -->
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="Max force per keypoint ⓘ" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Maximum force that can be configured for a keypoint"/>
+                <Slider Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="1" Minimum="2" Maximum="100" SmallChange="0.1" LargeChange="0.5" ValueChanged="Slider_ValueChanged" Tag="config.maxForce" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="8" Grid.Column="2" Tag="config.maxForce"  FontFamily="Courier New" Margin="0,5,10,0" VerticalAlignment="Center" FontSize="11" MouseDown="infoText_MouseDown" Foreground="White" Background="DarkGray" TextAlignment="Center" Padding="1"/>
+
+
+
+                <TextBlock Grid.Row="9" Grid.Column="0" Grid.RowSpan="2" Text="Forces" VerticalAlignment="Center" Margin="10,0,8,0" TextWrapping="Wrap" Foreground="White" ToolTip="Forces matrix"/>
+                <local:ForceMatrix Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2" Width="200" Height="200" x:Name="forceMatrix"/>
+                <local:ForceGraph Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" Width="200" Height="150" x:Name="forceGraph" Margin="0,10,0,0"/>
 
 
             </Grid>

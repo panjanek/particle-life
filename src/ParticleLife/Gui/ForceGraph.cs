@@ -50,10 +50,9 @@ namespace ParticleLife.Gui
 
         private double dotSize = 10;
 
-        private Ellipse debugDot;
-
         public ForceGraph()
         {
+            ClipToBounds = true;
             Forces = new Vector4[Simulation.KeypointsCount];
             dots = new Ellipse[Simulation.KeypointsCount];
             lines = new Line[Simulation.KeypointsCount-1];
@@ -98,9 +97,6 @@ namespace ParticleLife.Gui
                 polygons[i] = new Polygon() { StrokeThickness = 0 };
                 Children.Add(polygons[i]);
             }
-
-            debugDot = new Ellipse() { Fill = Brushes.Green, Width = 6, Height = 6 };
-            Children.Add(debugDot);
         }
 
         private void AddDragging(Ellipse dot)
@@ -210,8 +206,6 @@ namespace ParticleLife.Gui
             var negativeColor = new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 0, 0, 255));
             if (Forces[i].Y * Forces[i + 1].Y >= 0)
             {
-                var positive = Forces[i].Y >= 0 && Forces[i + 1].Y >= 0;
-                var brush = positive ? positiveColor : negativeColor;
                 polygons[i + offset].Visibility = Visibility.Collapsed;
                 SetPolygon(i,
                     [
@@ -219,7 +213,7 @@ namespace ParticleLife.Gui
                         new Point(ToPixelX(Forces[i].X), ToPixelY(Forces[i].Y)),
                         new Point(ToPixelX(Forces[i+1].X), ToPixelY(Forces[i+1].Y)),
                         new Point(ToPixelX(Forces[i+1].X), ToPixelY(0)),
-                ], brush);
+                ], Forces[i].Y >= 0 && Forces[i + 1].Y >= 0 ? positiveColor : negativeColor);
             }
             else
             {
@@ -232,35 +226,19 @@ namespace ParticleLife.Gui
                      ], Forces[i].Y < 0 ? negativeColor : positiveColor);
 
                 SetPolygon(i+offset,
-                        [
-                            new Point(ToPixelX(cx), ToPixelY(0)),
-                            new Point(ToPixelX(Forces[i+1].X), ToPixelY(Forces[i+1].Y)),
-                            new Point(ToPixelX(Forces[i+1].X), ToPixelY(0))
-                        ], Forces[i+1].Y < 0 ? negativeColor : positiveColor);
-
-
-                if (i == 0)
-                {
-                    debugDot.SetValue(Canvas.LeftProperty, ToPixelX(cx)-3);
-                    debugDot.SetValue(Canvas.TopProperty, ToPixelY(0)-3);
-                }
-
-                //polygons[i].Visibility = Visibility.Collapsed;
-                //polygons[i+offset].Visibility = Visibility.Collapsed;
+                    [
+                        new Point(ToPixelX(cx), ToPixelY(0)),
+                        new Point(ToPixelX(Forces[i+1].X), ToPixelY(Forces[i+1].Y)),
+                        new Point(ToPixelX(Forces[i+1].X), ToPixelY(0))
+                    ], Forces[i+1].Y < 0 ? negativeColor : positiveColor);
             }
         }
 
         private void SetPolygon(int idx, Point[] points, Brush brush)
         {
-            var left = points.Min(p => p.X);
-            var top = points.Min(p => p.Y);
-            left = 0;
-            top = 0;
-            polygons[idx].SetValue(Canvas.LeftProperty, left);
-            polygons[idx].SetValue(Canvas.TopProperty, top);
-            polygons[idx].Points = new PointCollection(points.Select(p => new Point(p.X - left, p.Y - top)));
-            polygons[idx].StrokeThickness = 1;
-            polygons[idx].Stroke = Brushes.Green;
+            polygons[idx].SetValue(Canvas.LeftProperty, 0d);
+            polygons[idx].SetValue(Canvas.TopProperty, 0d);
+            polygons[idx].Points = new PointCollection(points.Select(p => new Point(p.X, p.Y)));
             polygons[idx].Visibility = Visibility.Visible;
             polygons[idx].Fill = brush;
         }

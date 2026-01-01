@@ -47,6 +47,10 @@ namespace ParticleLife.Gpu
 
         private AppContext app;
 
+        public byte[] captureBuffer;
+
+        private int? recFrameNr;
+
         public OpenGlRenderer(Panel placeholder, AppContext app)
         {
             this.placeholder = placeholder;
@@ -233,10 +237,15 @@ namespace ParticleLife.Gpu
 
         private void GlControl_Paint(object? sender, PaintEventArgs e)
         {
-            FollowTrackedParticle();
-            displayProgram.Run(GetProjectionMatrix(), app.simulation.config.particleCount, new Vector2(glControl.Width, glControl.Height));
-            glControl.SwapBuffers();
-            frameCounter++;
+            lock (app.simulation)
+            {
+                FollowTrackedParticle();
+                displayProgram.Run(GetProjectionMatrix(), app.simulation.config.particleCount, new Vector2(glControl.Width, glControl.Height));
+                glControl.SwapBuffers();
+                frameCounter++;
+            }
+
+            Capture();
         }
 
         public void Step()
@@ -255,6 +264,43 @@ namespace ParticleLife.Gpu
             }
 
             glControl.Invalidate();
+        }
+
+        private void Capture()
+        {
+            //combine PNGs into video:
+            //mp4: ffmpeg -f image2 -framerate 60 -i rec1/frame_%05d.png -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -r 60 -vcodec libx264 -pix_fmt yuv420p out.mp4 -y
+            //gif: ffmpeg -framerate 60 -ss2 -i rec1/frame_%05d.png -vf "select='not(mod(n,2))',setpts=N/FRAME_RATE/TB" -t 5 3ch-tissue.gif
+            //reduce bitrate:  ffmpeg -i in.mp4 -c:v libx264 -b:v 4236000 -pass 2 -c:a aac -b:a 128k out.mp4
+            var recDir = app.configWindow.recordDir?.ToString();
+            if (!recFrameNr.HasValue && !string.IsNullOrWhiteSpace(recDir))
+            {
+                recFrameNr = 0;
+            }
+
+            if (recFrameNr.HasValue && string.IsNullOrWhiteSpace(recDir))
+                recFrameNr = null;
+
+            if (recFrameNr.HasValue && !string.IsNullOrWhiteSpace(recDir))
+            {
+                string recFilename = $"{recDir}\\frame_{recFrameNr.Value.ToString("00000")}.png";
+                glControl.MakeCurrent();
+                int width = glControl.Width;
+                int height = glControl.Height;
+                int bufferSize = width * height * 4;
+                if (captureBuffer == null || bufferSize != captureBuffer.Length)
+                    captureBuffer = new byte[bufferSize];
+                GL.ReadPixels(
+                    0, 0,
+                    width, height,
+                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                    PixelType.UnsignedByte,
+                    captureBuffer
+                );
+
+                TextureUtil.SaveBufferToFile(captureBuffer, width, height, recFilename);
+                recFrameNr = recFrameNr.Value + 1;
+            }
         }
     }
 }

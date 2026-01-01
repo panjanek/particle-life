@@ -107,6 +107,11 @@ namespace ParticleLife
                         $"fps:{fps.ToString("0.0")} "+
                         $"seed:{app.simulation.seed.ToString()} ";
 
+                if (!string.IsNullOrWhiteSpace(app.configWindow.recordDir))
+                {
+                    Title += $"[recording to {app.configWindow.recordDir}] ";
+                }
+
                 lastCheckFrameCount = app.renderer.FrameCounter;
                 lastCheckTime = now;
             }

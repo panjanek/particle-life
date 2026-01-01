@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Sources;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 
@@ -17,11 +19,30 @@ namespace ParticleLife.Models
 
         public ShaderConfig config;
 
+        [JsonIgnore]
         public Particle[] particles;
 
+        [JsonIgnore]
         public Vector4[] forces;
 
         public int seed = 6;
+
+        //this is for json serialization
+        public float[][] F
+        {
+            get
+            {
+                var res = new float[forces.Length][];
+                for (int i = 0; i < forces.Length; i++)
+                    res[i] = [forces[i].X, forces[i].Y];
+                return res;
+            }
+            set
+            {
+                for (int i = 0; i < forces.Length; i++)
+                    forces[i] = new Vector4(value[i][0], value[i][1], 0, 0);
+            }
+        }
 
         public Simulation()
         {

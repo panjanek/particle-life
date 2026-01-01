@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using ParticleLife.Models;
 using ParticleLife.Utils;
 using AppContext = ParticleLife.Models.AppContext;
@@ -25,6 +27,8 @@ namespace ParticleLife.Gui
         private AppContext app;
 
         private bool updating;
+
+        public string recordDir;
         public ConfigWindow(AppContext app)
         {
             this.app = app;
@@ -37,10 +41,44 @@ namespace ParticleLife.Gui
             restartButton.Click += (s, e) => 
             { 
                 app.simulation.InitializeParticles(app.simulation.config.particleCount);
-                //app.simulation.seed++;
-                //app.simulation.InitializeRandomForces();
                 app.renderer.UploadParticleData();
                 ResetMatrix();
+            };
+
+            randomButton.Click += (s, e) =>
+            {
+                app.simulation.InitializeParticles(app.simulation.config.particleCount);
+                app.simulation.seed++;
+                app.simulation.InitializeRandomForces();
+                app.renderer.UploadParticleData();
+                ResetMatrix();
+            };
+
+            saveButton.Click += (s, e) =>
+            {
+                var dialog = new CommonSaveFileDialog { Title = "Save configuration json file", DefaultExtension = "json" };
+                dialog.Filters.Add(new CommonFileDialogFilter("JSON files", "*.json"));
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    SimFactory.SaveToFile(app.simulation, dialog.FileName);
+                    PopupMessage.Show(app.mainWindow, $"Config saved to {dialog.FileName}");
+                }
+            };
+
+            loadButton.Click += (s, e) =>
+            {
+                var dialog = new CommonOpenFileDialog { Title = "Open configuration json file", DefaultExtension = "json" };
+                dialog.Filters.Add(new CommonFileDialogFilter("JSON files", "*.json"));
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    var newSim = SimFactory.LoadFromFile(dialog.FileName);
+                    app.simulation = newSim;
+                    app.renderer.UploadParticleData();
+                    ResetMatrix();
+                    UpdateActiveControls();
+                    UpdatePassiveControls();
+                    PopupMessage.Show(app.mainWindow, $"Config loaded from {dialog.FileName}");
+                }
             };
 
             forceGraph.Changed = () =>
@@ -50,6 +88,24 @@ namespace ParticleLife.Gui
                     app.simulation.forces[offset + i] = forceGraph.Forces[i];
                 forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
             };
+        }
+
+        private void Record_Click(object sender, RoutedEventArgs e)
+        {
+            if (recordButton.IsChecked == true)
+            {
+                var dialog = new CommonOpenFileDialog { IsFolderPicker = true, Title = "Select folder to save frames as PNG files" };
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                    recordDir = dialog.FileName;
+                else
+                    recordButton.IsChecked = false;
+            }
+            else
+            {
+                recordDir = null;
+            }
+
+            e.Handled = true;
         }
 
         private void ResetMatrix()
@@ -142,6 +198,7 @@ namespace ParticleLife.Gui
             foreach (var text in WpfUtil.FindVisualChildren<TextBlock>(this))
                     WpfUtil.UpdateTextBlockForSlider(this, text, app.simulation);
             forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
+            UpdateGraph();
         }
     }
 }

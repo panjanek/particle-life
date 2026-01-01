@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParticleLife.Models
 {
-    [StructLayout(LayoutKind.Explicit, Size = 48)]
+    [StructLayout(LayoutKind.Explicit, Size = 52)]
     public struct ShaderConfig
     {
         public ShaderConfig()
@@ -19,11 +19,11 @@ namespace ParticleLife.Models
 
         [FieldOffset(4)] public float dt = 0.1f;
 
-        [FieldOffset(8)] public float sigma2 = 4f;
+        [FieldOffset(8)] public float sigma2 = 0f;
 
-        [FieldOffset(12)] public float clampVel = 1000f;
+        [FieldOffset(12)] public float clampVel = 0;
 
-        [FieldOffset(16)] public float clampAcc = 1000;
+        [FieldOffset(16)] public float clampAcc = 0;
 
         [FieldOffset(20)] public float width = 1920;
 
@@ -38,5 +38,7 @@ namespace ParticleLife.Models
         [FieldOffset(40)] public int trackedIdx;
 
         [FieldOffset(44)] public float maxForce = 20f;
+
+        [FieldOffset(48)] public float amp = 1f;
     }
 }
