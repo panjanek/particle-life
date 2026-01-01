@@ -15,5 +15,7 @@ Particle system implemented with GPU shaders.
 
 <p align="center"><img src="https://github.com/panjanek/particle-life/blob/5098382a55bbcb35971a2f253054deeea992f622/captures/screenshot.png" /><br/>GUI</p>
 
-| <p align="center"><img src="https://github.com/panjanek/particle-life/blob/30daa971ecf56382157ef5c2e90cdcbb9110b6de/captures/cells.gif" /><br/>symetric</p> | <p align="center"><img src="https://github.com/panjanek/particle-life/blob/30daa971ecf56382157ef5c2e90cdcbb9110b6de/captures/cells2.gif" /><br/>symetric</p> |
-|---|---|
+| <p align="center"><img src="https://github.com/panjanek/particle-life/blob/30daa971ecf56382157ef5c2e90cdcbb9110b6de/captures/cells.gif" /><br/>symetric</p> | <p align="center"><img src="https://github.com/panjanek/particle-life/blob/30daa971ecf56382157ef5c2e90cdcbb9110b6de/captures/cells2.gif" /><br/>symetric</p> | <p align="center"><img src="https://github.com/panjanek/particle-life/blob/aed9b0dcc645ee610411d7304d2d46753a9c1c78/captures/zoomedout.gif" /><br/>symmetric</p> |
+|---|---|---|
+
+
