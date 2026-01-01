@@ -38,6 +38,11 @@ namespace ParticleLife.Gui
             Closing += (s, e) => { e.Cancel = true; WindowState = WindowState.Minimized; };
             ContentRendered += (s, e) => { UpdateActiveControls(); UpdatePassiveControls(); };
             forceMatrix.SelectionChanged = () => UpdateGraph();
+            randomButton.PreviewKeyDown += (s, e) => e.Handled=true;
+            restartButton.PreviewKeyDown += (s, e) => e.Handled = true;
+            saveButton.PreviewKeyDown += (s, e) => e.Handled = true;
+            loadButton.PreviewKeyDown += (s, e) => e.Handled = true;
+            recordButton.PreviewKeyDown += (s, e) => e.Handled = true;
             restartButton.Click += (s, e) => 
             { 
                 app.simulation.InitializeParticles(app.simulation.config.particleCount);

@@ -270,7 +270,7 @@ namespace ParticleLife.Gpu
         {
             //combine PNGs into video:
             //mp4: ffmpeg -f image2 -framerate 60 -i rec1/frame_%05d.png -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -r 60 -vcodec libx264 -pix_fmt yuv420p out.mp4 -y
-            //gif: ffmpeg -framerate 60 -ss2 -i rec1/frame_%05d.png -vf "select='not(mod(n,2))',setpts=N/FRAME_RATE/TB" -t 5 3ch-tissue.gif
+            //gif: ffmpeg -framerate 60 -ss2 -i rec/frame_%05d.png -vf "select='not(mod(n,2))',setpts=N/FRAME_RATE/TB" -t 5 -r 20 simple2.gif
             //reduce bitrate:  ffmpeg -i in.mp4 -c:v libx264 -b:v 4236000 -pass 2 -c:a aac -b:a 128k out.mp4
             var recDir = app.configWindow.recordDir?.ToString();
             if (!recFrameNr.HasValue && !string.IsNullOrWhiteSpace(recDir))
