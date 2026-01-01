@@ -50,6 +50,8 @@ namespace ParticleLife.Gui
 
         private double dotSize = 10;
 
+        private Ellipse debugDot;
+
         public ForceGraph()
         {
             Forces = new Vector4[Simulation.KeypointsCount];
@@ -96,6 +98,9 @@ namespace ParticleLife.Gui
                 polygons[i] = new Polygon() { StrokeThickness = 0 };
                 Children.Add(polygons[i]);
             }
+
+            debugDot = new Ellipse() { Fill = Brushes.Green, Width = 6, Height = 6 };
+            Children.Add(debugDot);
         }
 
         private void AddDragging(Ellipse dot)
@@ -218,8 +223,30 @@ namespace ParticleLife.Gui
             }
             else
             {
-                polygons[i].Visibility = Visibility.Collapsed;
-                polygons[i+offset].Visibility = Visibility.Collapsed;
+                var cx = Forces[i].X + (Forces[i + 1].X - Forces[i].X) * (Forces[i].Y / (Forces[i].Y - Forces[i+1].Y));
+                SetPolygon(i,
+                     [
+                        new Point(ToPixelX(Forces[i].X), ToPixelY(0)),
+                        new Point(ToPixelX(Forces[i].X), ToPixelY(Forces[i].Y)),
+                        new Point(ToPixelX(cx), ToPixelY(0))
+                     ], Forces[i].Y < 0 ? negativeColor : positiveColor);
+
+                SetPolygon(i+offset,
+                        [
+                            new Point(ToPixelX(cx), ToPixelY(0)),
+                            new Point(ToPixelX(Forces[i+1].X), ToPixelY(Forces[i+1].Y)),
+                            new Point(ToPixelX(Forces[i+1].X), ToPixelY(0))
+                        ], Forces[i+1].Y < 0 ? negativeColor : positiveColor);
+
+
+                if (i == 0)
+                {
+                    debugDot.SetValue(Canvas.LeftProperty, ToPixelX(cx)-3);
+                    debugDot.SetValue(Canvas.TopProperty, ToPixelY(0)-3);
+                }
+
+                //polygons[i].Visibility = Visibility.Collapsed;
+                //polygons[i+offset].Visibility = Visibility.Collapsed;
             }
         }
 
