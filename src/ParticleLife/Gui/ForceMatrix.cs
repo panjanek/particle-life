@@ -22,6 +22,10 @@ namespace ParticleLife.Gui
 
         public int SelectedY { get; set; }
 
+        public Action SelectionChanged { get; set; }
+
+        private int speciesCount { get; set; }
+
         public ForceMatrix()
             :base()
         {
@@ -35,7 +39,6 @@ namespace ParticleLife.Gui
         {
             Background = Brushes.White;
             var rectSize = Width / Simulation.MaxSpeciesCount;
-            var a = ActualHeight;
             for (int x = 0; x < Simulation.MaxSpeciesCount; x++)
             {
                 for (int y = 0; y < Simulation.MaxSpeciesCount; y++)
@@ -54,9 +57,16 @@ namespace ParticleLife.Gui
                     {
                         var tag = WpfUtil.GetTagAsString(s);
                         var split = tag.Split(',');
-                        SelectedX = int.Parse(split[0]);
-                        SelectedY = int.Parse(split[1]);
-                        UpdateSelection();
+                        var newX = int.Parse(split[0]);
+                        var newY = int.Parse(split[1]);
+                        if (newX < speciesCount && newY < speciesCount)
+                        {
+                            SelectedX = newX;
+                            SelectedY = newY;
+                            UpdateSelection();
+                            if (SelectionChanged != null)
+                                SelectionChanged();
+                        }
                     };
 
                     Children.Add(rect);
@@ -90,6 +100,7 @@ namespace ParticleLife.Gui
     
         public void UpdateCells(Vector4[] forces, int speciesCount)
         {
+            this.speciesCount = speciesCount;
             var inactive = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 32, 32, 32));
             for (int x = 0; x < Simulation.MaxSpeciesCount; x++)
             {

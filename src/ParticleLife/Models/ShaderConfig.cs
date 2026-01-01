@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParticleLife.Models
 {
-    [StructLayout(LayoutKind.Explicit, Size = 44)]
+    [StructLayout(LayoutKind.Explicit, Size = 48)]
     public struct ShaderConfig
     {
         public ShaderConfig()
@@ -29,12 +29,14 @@ namespace ParticleLife.Models
 
         [FieldOffset(24)] public float height = 1080;
 
-        [FieldOffset(28)] public float maxDist = 200;
+        [FieldOffset(28)] public float maxDist = 100;
 
         [FieldOffset(32)] public int speciesCount = 2;
 
         [FieldOffset(36)] public float damping = 0.1f;
 
         [FieldOffset(40)] public int trackedIdx;
+
+        [FieldOffset(44)] public float maxForce = 20f;
     }
 }

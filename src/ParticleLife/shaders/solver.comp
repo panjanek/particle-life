@@ -16,6 +16,7 @@ struct ShaderConfig {
     int speciesCount;
     float damping;
     int trackedIdx;
+    float maxForce;
 };
 
 struct Particle

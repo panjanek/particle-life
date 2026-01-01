@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using ParticleLife.Models;
 using ParticleLife.Utils;
 using AppContext = ParticleLife.Models.AppContext;
 
@@ -32,13 +33,39 @@ namespace ParticleLife.Gui
             minimizeButton.Click += (s, e) => WindowState = WindowState.Minimized;
             Closing += (s, e) => { e.Cancel = true; WindowState = WindowState.Minimized; };
             ContentRendered += (s, e) => { UpdateActiveControls(); UpdatePassiveControls(); };
+            forceMatrix.SelectionChanged = () => UpdateGraph();
             restartButton.Click += (s, e) => 
             { 
                 app.simulation.InitializeParticles(app.simulation.config.particleCount);
-                app.simulation.seed++;
-                app.simulation.InitializeRandomForces();
-                app.renderer.UploadParticleData(); 
+                //app.simulation.seed++;
+                //app.simulation.InitializeRandomForces();
+                app.renderer.UploadParticleData();
+                ResetMatrix();
             };
+
+            forceGraph.Changed = () =>
+            {
+                var offset = Simulation.GetForceOffset(forceMatrix.SelectedX, forceMatrix.SelectedY);
+                for (int i = 0; i < Simulation.KeypointsCount; i++)
+                    app.simulation.forces[offset + i] = forceGraph.Forces[i];
+                forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
+            };
+        }
+
+        private void ResetMatrix()
+        {
+            forceMatrix.SelectedX = 0;
+            forceMatrix.SelectedY = 0;
+            forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
+            forceMatrix.UpdateSelection();
+            UpdateGraph();
+        }
+
+        private void UpdateGraph()
+        {
+            var offset = Simulation.GetForceOffset(forceMatrix.SelectedX, forceMatrix.SelectedY);
+            var forces = app.simulation.forces.Skip(offset).Take(Simulation.KeypointsCount).ToArray();
+            forceGraph.UpdateGraph(forces, app.simulation.config.maxDist, app.simulation.config.maxForce);
         }
 
         private void global_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -62,6 +89,7 @@ namespace ParticleLife.Gui
                     {
                         app.simulation.StartSimulation(newParticleCount, newSpeciesCount, newWidth, newHeight);
                         app.renderer.UploadParticleData();
+                        ResetMatrix();
                         UpdateActiveControls();
                         UpdatePassiveControls();
                     }
@@ -105,6 +133,7 @@ namespace ParticleLife.Gui
                     slider.Value = ReflectionUtil.GetObjectValue<float>(app.simulation, tag);
                 }
             }
+            UpdateGraph();
             updating = false;
         }
 

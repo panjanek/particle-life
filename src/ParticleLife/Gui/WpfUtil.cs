@@ -58,6 +58,11 @@ namespace ParticleLife.Gui
                 return null;
         }
 
+        public static int GetTagAsInt(object element)
+        {
+            return int.Parse(GetTagAsString(element));
+        }
+
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject parent)
         where T : DependencyObject
         {
