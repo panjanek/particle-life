@@ -97,7 +97,7 @@ namespace ParticleLife.Gui
                 var offset = Simulation.GetForceOffset(forceMatrix.SelectedX, forceMatrix.SelectedY);
                 for (int i = 0; i < Simulation.KeypointsCount; i++)
                     app.simulation.forces[offset + i] = forceGraph.Forces[i];
-                forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
+                forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount, app.simulation.config.maxForce);
             };
 
             invertButton.Click += (s, e) => Invert(Simulation.GetForceOffset(forceMatrix.SelectedX, forceMatrix.SelectedY));
@@ -155,7 +155,7 @@ namespace ParticleLife.Gui
         {
             forceMatrix.SelectedX = 0;
             forceMatrix.SelectedY = 0;
-            forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
+            forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount, app.simulation.config.maxForce);
             forceMatrix.UpdateSelection();
             UpdateGraph();
         }
@@ -246,7 +246,7 @@ namespace ParticleLife.Gui
         {
             foreach (var text in WpfUtil.FindVisualChildren<TextBlock>(this))
                     WpfUtil.UpdateTextBlockForSlider(this, text, app.simulation);
-            forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount);
+            forceMatrix.UpdateCells(app.simulation.forces, app.simulation.config.speciesCount, app.simulation.config.maxForce);
             UpdateGraph();
         }
     }

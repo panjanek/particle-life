@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="ConfigWindow" 
         Width="350"
-        Height="750"  
+        Height="760"  
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterOwner"
         WindowState="Normal"

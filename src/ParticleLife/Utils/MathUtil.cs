@@ -18,5 +18,15 @@ namespace ParticleLife.Utils
 
             return d;
         }
+
+        public static double Amplify(double x, int pow)
+        {
+            double a = 1;
+            for (int i = 0; i < pow; i++)
+                a = a * (1 - x);
+
+            return 1 - a;
+
+        }
     }
 }

@@ -37,7 +37,7 @@ namespace ParticleLife.Models
 
         [FieldOffset(40)] public int trackedIdx;
 
-        [FieldOffset(44)] public float maxForce = 20f;
+        [FieldOffset(44)] public float maxForce = 15;
 
         [FieldOffset(48)] public float amp = 1f;
     }

@@ -98,7 +98,7 @@ namespace ParticleLife.Gui
             }
         }
     
-        public void UpdateCells(Vector4[] forces, int speciesCount)
+        public void UpdateCells(Vector4[] forces, int speciesCount, float maxForce)
         {
             this.speciesCount = speciesCount;
             var inactive = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 32, 32, 32));
@@ -115,10 +115,11 @@ namespace ParticleLife.Gui
                             val += forces[offset + i].Y;
                         }
 
-                        var r = (val > 0) ? val / 10 : 0;
-                        var b = (val < 0) ? -val / 10 : 0;
+                        var r = ParticleLife.Utils.MathUtil.Amplify((val > 0) ? val / maxForce : 0, 4);
+                        var b = ParticleLife.Utils.MathUtil.Amplify((val < 0) ? -val / maxForce : 0, 4);
+                        var g = Math.Max(r, b) / 6;
                         var rect = rectangles[x, y];
-                        rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, ClampColor(r), 0, ClampColor(b)));
+                        rect.Fill = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, ClampColor(r), ClampColor(g), ClampColor(b)));
                     }
                     else
                     {
