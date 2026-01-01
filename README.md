@@ -1,6 +1,6 @@
 # Yet another particle life simulator
-https://github.com/panjanek/particle-life
-Particle system implemented wuith GPU shaders.
+
+Particle system implemented with GPU shaders.
 
 ## Features
 * Configure forces matrix in UI
