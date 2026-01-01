@@ -16,4 +16,4 @@ Particle system implemented with GPU shaders.
 
 
 
-<p align="center"><img src="https://github.com/panjanek/particle-life/blob/5098382a55bbcb35971a2f253054deeea992f622/captures/screenshot.png" /><br/>w colors</p>
+<p align="center"><img src="https://github.com/panjanek/particle-life/blob/5098382a55bbcb35971a2f253054deeea992f622/captures/screenshot.png" /><br/>GUI</p>
