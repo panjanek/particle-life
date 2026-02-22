@@ -237,13 +237,11 @@ namespace ParticleLife.Gpu
 
         private void GlControl_Paint(object? sender, PaintEventArgs e)
         {
-            lock (app.simulation)
-            {
-                FollowTrackedParticle();
-                displayProgram.Run(GetProjectionMatrix(), app.simulation.config.particleCount, new Vector2(glControl.Width, glControl.Height), app.simulation.particleSize);
-                glControl.SwapBuffers();
-                frameCounter++;
-            }
+  
+            FollowTrackedParticle();
+            displayProgram.Run(GetProjectionMatrix(), app.simulation.config.particleCount, new Vector2(glControl.Width, glControl.Height), app.simulation.particleSize);
+            glControl.SwapBuffers();
+            frameCounter++;
 
             Capture();
         }

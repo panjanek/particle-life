@@ -17,7 +17,7 @@ namespace ParticleLife.Models
 
         [FieldOffset(0)] public int particleCount = 0;
 
-        [FieldOffset(4)] public float dt = 0.1f;
+        [FieldOffset(4)] public float dt = 0.05f;
 
         [FieldOffset(8)] public float sigma2 = 0f;
 
@@ -29,11 +29,11 @@ namespace ParticleLife.Models
 
         [FieldOffset(24)] public float height = 1080;
 
-        [FieldOffset(28)] public float maxDist = 100;
+        [FieldOffset(28)] public float maxDist = 150;
 
         [FieldOffset(32)] public int speciesCount = 0;
 
-        [FieldOffset(36)] public float damping = 0.1f;
+        [FieldOffset(36)] public float damping = 0.2f;
 
         [FieldOffset(40)] public int trackedIdx;
 

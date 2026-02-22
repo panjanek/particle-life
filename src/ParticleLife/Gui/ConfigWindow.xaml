@@ -129,6 +129,9 @@
                     <ComboBoxItem IsSelected="True">2500</ComboBoxItem>
                     <ComboBoxItem>5000</ComboBoxItem>
                     <ComboBoxItem>10000</ComboBoxItem>
+                    <ComboBoxItem>20000</ComboBoxItem>
+                    <ComboBoxItem>30000</ComboBoxItem>
+                    <ComboBoxItem>50000</ComboBoxItem>
                     <ComboBoxItem>100000</ComboBoxItem>
                     <ComboBoxItem>1000000</ComboBoxItem>
                 </ComboBox>

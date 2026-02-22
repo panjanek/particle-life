@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
+using Microsoft.VisualBasic.Logging;
 using OpenTK.Audio.OpenAL;
 using OpenTK.Mathematics;
 
@@ -71,8 +72,8 @@ namespace ParticleLife.Models
                     {
                         float v1 = (float)(1.5 * config.maxForce * (rnd.NextDouble() - 0.5));
                         float v2 = (float)(1 * config.maxForce * (rnd.NextDouble() - 0.5));
-                        SetForce(i, j, -config.maxForce*0.5f, v1, v2);
-                        SetForce(j, i, -config.maxForce * 0.5f, v1, v2);
+                        SetForce3(i, j, -config.maxForce*0.5f, v1, v2);
+                        SetForce3(j, i, -config.maxForce * 0.5f, v1, v2);
                     }
                 }
             }
@@ -85,7 +86,7 @@ namespace ParticleLife.Models
 
         }
 
-        private void SetForce(int specMe, int specOther, float val0, float val1, float val2)
+        private void SetForce3(int specMe, int specOther, float val0, float val1, float val2)
         {
             int offset = GetForceOffset(specMe, specOther);
             var d = config.maxDist / 6;
@@ -97,19 +98,63 @@ namespace ParticleLife.Models
             forces[offset + 5] = new Vector4(5*d, 0, 0, 0);
         }
 
+        private void SetSimpleForce(int specMe, int specOther, float val0, float val1)
+        {
+            int offset = GetForceOffset(specMe, specOther);
+            var d = config.maxDist / 6;
+            forces[offset + 0] = new Vector4(0 * d, val0, 0, 0);
+            forces[offset + 1] = new Vector4(1 * d, 0, 0, 0);
+            forces[offset + 2] = new Vector4(2 * d, val1, 0, 0);
+            forces[offset + 3] = new Vector4(3 * d, 0, 0, 0);
+            forces[offset + 4] = new Vector4(4 * d, 0, 0, 0);
+            forces[offset + 5] = new Vector4(5 * d, 0, 0, 0);
+        }
+
         public void InitializeRandomForces()
         {
             var rnd = new Random(seed); //4
+            float m = config.maxForce;
             for (int i = 0; i < config.speciesCount; i++)
             {
                 for (int j = 0; j < config.speciesCount; j++)
                 {
-                    float v1 = (float)(1.7*config.maxForce * (rnd.NextDouble() - 0.5));
-                    float v2 = (float)(1*config.maxForce * (rnd.NextDouble() - 0.5));
-                    SetForce(i, j, -config.maxForce * 0.5f, v1, v2);
+
+                    var rep = -0.5f * m;
+                        
+                    var main = (float)(0.25 * m * (rnd.NextDouble() - 0.5));
+
+           
+
+                    /*
+                    int prev = (i + config.speciesCount - 1) % config.speciesCount;
+                    int next = (i+1) % config.speciesCount;
+
+                    if (j == prev)
+                        main = -0.5f * m;
+                    else if (j == i)
+                        main = 0.25f * m;
+                    else if (j == next)
+                        main = 0.25f * m;
+                    else
+                        main = -0.15f * m; 
+                    */
+                    
+
+                    SetSimpleForce(i, j, rep, main);
                 }
             }
-        }
+
+                    /*
+                    for (int i = 0; i < config.speciesCount; i++)
+                    {
+                        for (int j = 0; j < config.speciesCount; j++)
+                        {
+                            float v1 = (float)(1.7*config.maxForce * (rnd.NextDouble() - 0.5));
+                            float v2 = (float)(1*config.maxForce * (rnd.NextDouble() - 0.5));
+                            SetForce(i, j, -config.maxForce * 0.5f, v1, v2);
+                        }
+                    }*/
+                }
 
         public void InitializeParticles(int count)
         {

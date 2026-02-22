@@ -12,7 +12,7 @@ namespace ParticleLife.Gpu
     public static class ShaderUtil
     {
         // 16, 32, 64, 128, 256 - depending on GPU architecture/vendor. Can be set as first commandline parameter
-        public static int LocalSizeX = 64;
+        public static int LocalSizeX = 256;
         public static int CompileAndLinkComputeShader(string compFile)
         {
             // Compile compute shader
