@@ -155,7 +155,10 @@ namespace ParticleLife.Gui
             {
                 var dialog = new CommonOpenFileDialog { IsFolderPicker = true, Title = "Select folder to save frames as PNG files" };
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    app.renderer.Paused = false;
                     recordDir = dialog.FileName;
+                }
                 else
                     recordButton.IsChecked = false;
             }
