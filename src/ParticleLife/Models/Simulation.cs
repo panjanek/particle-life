@@ -120,41 +120,19 @@ namespace ParticleLife.Models
                 {
 
                     var rep = -0.5f * m;
-                        
                     var main = (float)(0.25 * m * (rnd.NextDouble() - 0.5));
 
-           
 
-                    /*
-                    int prev = (i + config.speciesCount - 1) % config.speciesCount;
-                    int next = (i+1) % config.speciesCount;
 
-                    if (j == prev)
-                        main = -0.5f * m;
-                    else if (j == i)
-                        main = 0.25f * m;
-                    else if (j == next)
-                        main = 0.25f * m;
-                    else
-                        main = -0.15f * m; 
-                    */
-                    
+                    var delta = ( i - j + config.speciesCount) % config.speciesCount;
+                    if (delta > 1)
+                        main = 0;
+
 
                     SetSimpleForce(i, j, rep, main);
                 }
             }
-
-                    /*
-                    for (int i = 0; i < config.speciesCount; i++)
-                    {
-                        for (int j = 0; j < config.speciesCount; j++)
-                        {
-                            float v1 = (float)(1.7*config.maxForce * (rnd.NextDouble() - 0.5));
-                            float v2 = (float)(1*config.maxForce * (rnd.NextDouble() - 0.5));
-                            SetForce(i, j, -config.maxForce * 0.5f, v1, v2);
-                        }
-                    }*/
-                }
+        }
 
         public void InitializeParticles(int count)
         {
