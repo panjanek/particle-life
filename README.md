@@ -2,6 +2,8 @@
 
 Particle system implemented with GPU shaders.
 
+Video: https://www.youtube.com/watch?v=ejSxLgyL1vc
+
 ## Features
 * Configure forces matrix in UI
 * Load/Save Json configurations
