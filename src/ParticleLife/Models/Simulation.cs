@@ -123,24 +123,11 @@ namespace ParticleLife.Models
 
                     var main = (float)(0.25 * m * (rnd.NextDouble() - 0.5));
 
-                    //var delta = (i - j + config.speciesCount) % config.speciesCount;
-                    //if (delta > 2)
-                    //    main = 0;
+                    var delta = (i - j + config.speciesCount) % config.speciesCount;
+                    if (delta > 1)
+                        main = 0;
 
 
-
-                    /*
-                    if (delta == 1)
-                    {
-                        if (i > j)
-                            main = (float)(0.25 * m * (rnd.NextDouble() - 0.5));
-                        else
-                            main = (float)(0.5 * m * (rnd.NextDouble() - 0.5));
-                    }
-
-                    if (delta > 2)
-                        main = 0
-                    */
 
                     SetSimpleForce(i, j, rep, main);
                 }
